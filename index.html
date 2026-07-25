@@ -5,35 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Спелый арбуз</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f4f1; color: #2c3e50; padding: 15px; margin: 0; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 420px; margin: 10px auto; box-sizing: border-box; }
-        h1 { text-align: center; color: #1b5e20; font-size: 24px; margin-top: 0; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #7f8c8d; font-size: 13px; margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin: 15px 0 6px; font-size: 14px; color: #34495e; }
-        select, input { width: 100%; padding: 14px; border: 2px solid #bdc3c7; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; background: #fff; }
-        select { padding-left: 15px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f4f1; color: #2c3e50; padding: 10px; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 420px; margin: 5px auto; box-sizing: border-box; }
+        h1 { text-align: center; color: #1b5e20; font-size: 22px; margin-top: 0; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; font-size: 12px; margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin: 12px 0 5px; font-size: 13px; color: #34495e; }
+        select, input { width: 100%; padding: 12px; border: 2px solid #bdc3c7; border-radius: 10px; box-sizing: border-box; font-size: 15px; outline: none; background: #fff; }
         .input-wrapper { position: relative; width: 100%; }
         .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #7f8c8d; pointer-events: none; }
         .with-icon { padding-left: 42px; }
-        button { width: 100%; background: #4caf50; color: white; border: none; padding: 16px; border-radius: 10px; font-size: 17px; font-weight: bold; margin-top: 25px; cursor: pointer; }
-        #result { margin-top: 25px; padding: 18px; border-radius: 12px; display: none; text-align: center; font-size: 15px; line-height: 1.5; }
+        button { width: 100%; background: #4caf50; color: white; border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 12px; display: none; text-align: center; font-size: 14px; line-height: 1.5; }
         .ripe { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
         .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
         .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
         .cheat { background: #eceff1; color: #37474f; border: 2px solid #b0bec5; }
-        .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
-        .score-badge { display: inline-block; font-size: 28px; font-weight: bold; margin-bottom: 10px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
-        .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
-        .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
-        #photo-section { display: none; margin-top: 15px; background: #fafafa; border: 2px dashed #bdc3c7; padding: 15px; border-radius: 10px; text-align: center; }
-        .canvas-container { position: relative; width: 100%; margin-top: 15px; display: none; touch-action: none; background: #000; border-radius: 8px; overflow: hidden; }
-        canvas { display: block; width: 100%; height: auto; }
-        .controls-hint { font-size: 12px; color: #666; margin-top: 8px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #e0e0e0; }
-        .control-group { display: flex; gap: 8px; margin-top: 8px; }
-        .control-btn { flex: 1; padding: 10px; font-size: 13px; background: #e0e0e0; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 12px; margin: 12px 0; font-size: 12px; line-height: 1.4; color: #2e7d32; }
+        .score-badge { display: inline-block; font-size: 24px; font-weight: bold; margin-bottom: 8px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
+        .weight-hint { margin-top: 5px; font-size: 12px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
+        .score-info { font-size: 11px; margin-top: 6px; font-weight: bold; opacity: 0.8; }
+        #photo-section { display: none; margin-top: 12px; background: #fafafa; border: 2px dashed #bdc3c7; padding: 12px; border-radius: 10px; text-align: center; }
+        .canvas-container { position: relative; width: 320px; margin: 12px auto 0 auto; display: none; touch-action: none; background: #000; border-radius: 8px; overflow: hidden; }
+        canvas { display: block; width: 320px; height: auto; }
+        .controls-hint { font-size: 11px; color: #666; margin-top: 6px; background: #fff; padding: 6px; border-radius: 6px; border: 1px solid #e0e0e0; }
+        .control-group { display: flex; gap: 6px; margin-top: 6px; }
+        .control-btn { flex: 1; padding: 8px; font-size: 12px; background: #e0e0e0; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .control-btn.active { background: #4caf50; color: white; }
-        .control-subgroup { display: flex; flex-direction: column; flex: 1; gap: 4px; }
-        .sub-btn { padding: 6px; font-size: 11px; background: #cfd8dc; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .control-subgroup { display: flex; flex-direction: row; flex: 1; gap: 4px; }
+        .sub-btn { flex: 1; padding: 8px 4px; font-size: 11px; background: #cfd8dc; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -75,22 +74,25 @@
         
         <div class="canvas-container" id="canvas-container">
             <canvas id="scanner-canvas"></canvas>
-            <div class="controls-hint">👆 Тащите круги пальцем. Выберите режим и настраивайте ширину/высоту контура под реальный объект на фото.</div>
+            <div class="controls-hint">👆 Тащите круги пальцем. Выберите режим и настраивайте ширину/высоту контура под объект.</div>
             <div class="control-group">
                 <button class="control-btn active" id="mode-melon" onclick="setEditMode('melon')">🟢 Визир Арбуза</button>
                 <button class="control-btn" id="mode-marker" onclick="setEditMode('marker')">🔴 Визир Маркера</button>
             </div>
-            <div class="control-group">
-                <div class="control-subgroup">
-                    <button class="sub-btn" onclick="adjustSize('width', 3)">↔️ Ширина ➕</button>
-                    <button class="sub-btn" onclick="adjustSize('width', -3)">↔️ Ширина ➖</button>
+            
+            <div class="control-group" id="size-controls-area">
+                <div class="control-subgroup" id="melon-controls" style="display: flex; width: 100%;">
+                    <button class="sub-btn" onclick="adjustSize('width', 3)">↔️ Шир.➕</button>
+                    <button class="sub-btn" onclick="adjustSize('width', -3)">↔️ Шир.➖</button>
+                    <button class="sub-btn" onclick="adjustSize('height', 3)">↕️ Выс.➕</button>
+                    <button class="sub-btn" onclick="adjustSize('height', -3)">↕️ Выс.➖</button>
                 </div>
-                <div class="control-subgroup" id="height-controls">
-                    <button class="sub-btn" onclick="adjustSize('height', 3)">↕️ Высота ➕</button>
-                    <button class="sub-btn" onclick="adjustSize('height', -3)">↕️ Высота ➖</button>
+                <div class="control-subgroup" id="marker-controls" style="display: none; width: 100%;">
+                    <button class="sub-btn" style="background:#ffc107;" onclick="adjustSize('all', 2)">➕ Больше маркер</button>
+                    <button class="sub-btn" style="background:#ffc107;" onclick="adjustSize('all', -2)">➖ Меньше маркер</button>
                 </div>
             </div>
-            <button class="control-btn" id="card-orient-btn" style="margin-top:8px; background:#37474f; color:white; display:none;" onclick="toggleCardOrientation()">🔄 Развернуть карту</button>
+            <button class="control-btn" id="card-orient-btn" style="margin-top:6px; background:#37474f; color:white; display:none;" onclick="toggleCardOrientation()">🔄 Развернуть карту</button>
         </div>
     </div>
 
@@ -109,8 +111,8 @@
     let currentCircumference = 0;
     let editMode = 'melon';
     let cardOrientation = 'horizontal';
-    let melonViz = { x: 200, y: 200, rX: 85, rY: 85 };
-    let markerViz = { x: 200, y: 110, r: 15 };
+    let melonViz = { x: 160, y: 160, rX: 75, rY: 75 };
+    let markerViz = { x: 160, y: 100, r: 15 };
     let imgObj = null;
     let canvas, ctx;
 
@@ -123,23 +125,19 @@
         else { tapeSec.style.display = 'none'; photoSec.style.display = 'block'; if (imgObj) drawScanner(); else document.getElementById('weight-hint-text').style.display = 'none'; }
     }
 
-    function toggleCardOrientation() {
-        cardOrientation = (cardOrientation === 'horizontal') ? 'vertical' : 'horizontal';
-        drawScanner();
-    }
+    function toggleCardOrientation() { cardOrientation = (cardOrientation === 'horizontal') ? 'vertical' : 'horizontal'; drawScanner(); }
 
     function handlePhoto(e) {
         const files = e.target.files; if (!files || files.length === 0) return;
         imgObj = new Image();
         imgObj.onload = function() {
             canvas = document.getElementById('scanner-canvas'); ctx = canvas.getContext('2d');
-            canvas.width = 400; canvas.height = (imgObj.height / imgObj.width) * 400;
+            canvas.width = 320; canvas.height = (imgObj.height / imgObj.width) * 320;
             document.getElementById('canvas-container').style.display = 'block';
-            const method = document.getElementById('method').value;
-            document.getElementById('card-orient-btn').style.display = (method === 'card') ? 'block' : 'none';
+            document.getElementById('card-orient-btn').style.display = (document.getElementById('method').value === 'card') ? 'block' : 'none';
             melonViz.x = canvas.width / 2; melonViz.y = canvas.height / 2;
-            melonViz.rX = 85; melonViz.rY = 85;
-            markerViz.x = canvas.width / 2; markerViz.y = canvas.height / 2 - 50;
+            melonViz.rX = 75; melonViz.rY = 75;
+            markerViz.x = canvas.width / 2; markerViz.y = canvas.height / 2 - 40;
             initTouchEvents(); drawScanner();
         }
         imgObj.src = URL.createObjectURL(files[0]);
@@ -149,19 +147,18 @@
         editMode = mode;
         document.getElementById('mode-melon').classList.toggle('active', mode === 'melon');
         document.getElementById('mode-marker').classList.toggle('active', mode === 'marker');
-        document.getElementById('height-controls').style.visibility = (mode === 'melon') ? 'visible' : 'hidden';
+        document.getElementById('melon-controls').style.display = (mode === 'melon') ? 'flex' : 'none';
+        document.getElementById('marker-controls').style.display = (mode === 'marker') ? 'flex' : 'none';
         drawScanner();
     }
     
     function adjustSize(axis, amount) {
         if (editMode === 'melon') {
-            if (axis === 'width') melonViz.rX += amount;
-            if (axis === 'height') melonViz.rY += amount;
-            if (melonViz.rX < 15) melonViz.rX = 15;
-            if (melonViz.rY < 15) melonViz.rY = 15;
+            if (axis === 'width' || axis === 'all') melonViz.rX += amount;
+            if (axis === 'height' || axis === 'all') melonViz.rY += amount;
+            if (melonViz.rX < 15) melonViz.rX = 15; if (melonViz.rY < 15) melonViz.rY = 15;
         } else {
-            markerViz.r += amount;
-            if (markerViz.r < 5) markerViz.r = 5;
+            markerViz.r += amount; if (markerViz.r < 5) markerViz.r = 5;
         }
         drawScanner();
     }
@@ -170,10 +167,8 @@
         let isDragging = false;
         const getCoords = (e) => {
             const rect = canvas.getBoundingClientRect();
-            const touch = (e.touches && e.touches.length > 0) ? e.touches[0] : null;
-            const clientX = touch ? touch.clientX : e.clientX;
-            const clientY = touch ? touch.clientY : e.clientY;
-            return { x: ((clientX - rect.left) / rect.width) * canvas.width, y: ((clientY - rect.top) / rect.height) * canvas.height };
+            const touch = (e.touches && e.touches.length > 0) ? e.touches[0] : e;
+            return { x: ((touch.clientX - rect.left) / rect.width) * canvas.width, y: ((touch.clientY - rect.top) / rect.height) * canvas.height };
         };
         canvas.onmousedown = () => { isDragging = true; }; canvas.onmouseup = () => { isDragging = false; };
         canvas.ontouchstart = () => { isDragging = true; }; canvas.ontouchend = () => { isDragging = false; };
@@ -186,27 +181,19 @@
     }
     function drawScanner() {
         if (!imgObj || !canvas) return; ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
-        
         ctx.beginPath(); ctx.strokeStyle = '#4caf50'; ctx.lineWidth = 3;
-        ctx.ellipse(melonViz.x, melonViz.y, melonViz.rX, melonViz.rY, 0, 0, 2 * Math.PI);
-        ctx.stroke();
+        ctx.ellipse(melonViz.x, melonViz.y, melonViz.rX, melonViz.rY, 0, 0, 2 * Math.PI); ctx.stroke();
 
         const method = document.getElementById('method').value;
         ctx.beginPath(); ctx.strokeStyle = '#ff5252'; ctx.lineWidth = 3;
         if (method === 'card') {
-            if (cardOrientation === 'horizontal') {
-                ctx.rect(markerViz.x - markerViz.r * 1.5, markerViz.y - markerViz.r, markerViz.r * 3, markerViz.r * 2);
-            } else {
-                ctx.rect(markerViz.x - markerViz.r, markerViz.y - markerViz.r * 1.5, markerViz.r * 2, markerViz.r * 3);
-            }
-        } else {
-            ctx.arc(markerViz.x, markerViz.y, markerViz.r, 0, 2 * Math.PI);
-        }
+            if (cardOrientation === 'horizontal') { ctx.rect(markerViz.x - markerViz.r * 1.5, markerViz.y - markerViz.r, markerViz.r * 3, markerViz.r * 2); }
+            else { ctx.rect(markerViz.x - markerViz.r, markerViz.y - markerViz.r * 1.5, markerViz.r * 2, markerViz.r * 3); }
+        } else { ctx.arc(markerViz.x, markerViz.y, markerViz.r, 0, 2 * Math.PI); }
         ctx.stroke();
 
         const markerRealSize = markerSizes[method];
         let pxPerCm = (method === 'card') ? (markerViz.r * 3) / markerRealSize : (markerViz.r * 2) / markerRealSize;
-        
         const averageDiameter = Math.sqrt(melonViz.rX * melonViz.rY) * 2;
         currentCircumference = (averageDiameter / pxPerCm) * Math.PI;
         updateWeightHint();
