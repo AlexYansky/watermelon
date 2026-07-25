@@ -19,13 +19,15 @@
         .ripe { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
         .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
         .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
+        .cheat { background: #eceff1; color: #37474f; border: 2px solid #b0bec5; animation: pulse 1.5s infinite; }
         .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
+        @keyframes pulse { 0% { border-color: #b0bec5; } 50% { border-color: #ff5252; } 100% { border-color: #b0bec5; } }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>🍉 Спелый арбуз</h1>
-    <div class="subtitle">Расчет спелости по физическим параметрам плода</div>
+    <div class="subtitle">Расчет спелости и проверка веса плода</div>
     
     <label for="variety">Тип / Сорт арбуза</label>
     <select id="variety">
@@ -60,13 +62,54 @@
         const weight = parseFloat(document.getElementById('weight').value);
         const resultDiv = document.getElementById('result');
         if (!circ || !weight) { alert('Заполните поля!'); return; }
+        
+        // 1. Вычисляем радиус по экватору
         const radius = circ / (2 * Math.PI);
-        let volume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
-        let kForm = 1.0; let kBark = 1.0;
-        if (variety === 'oval') { kForm = 1.28; kBark = 0.98; }
-        else if (variety === 'yellow') { kBark = 0.92; }
-        const density = (weight * kBark) / (volume * kForm);
+        
+        // 2. Считаем базовый объем шара (в литрах)
+        let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
+        
+        // 3. Устанавливаем коэффициенты формы, корки и индивидуальный порог обвеса
+        let kForm = 1.0; 
+        let kBark = 1.0;
+        let cheatLimit = 1.15; // Порог плотности для круглого арбуза
+
+        if (variety === 'oval') {
+            kForm = 1.28; 
+            kBark = 0.98;
+            cheatLimit = 1.05; // Сниженный порог для эллипсоидов (у них объем больше)
+        } else if (variety === 'yellow') {
+            kBark = 0.92;
+            cheatLimit = 1.10; // Порог для тонкокорых сортов
+        }
+        
+        // Итоговый точный объем плода
+        const finalVolume = baseVolume * kForm;
+        
+        // Вычисляем плотность мякоти плода
+        const density = (weight * kBark) / finalVolume;
+        
         resultDiv.style.display = 'block';
+
+        // 4. ТРИЗ-ТЕСТ «Анти-Обвес»
+        if (density > cheatLimit) {
+            // Расчет физического предела веса неспелого плода (плотность ~1.01)
+            const maxFairWeight = (1.01 * finalVolume) / kBark;
+            // Расчет идеального веса спелого плода (плотность ~0.94)
+            const idealFairWeight = (0.94 * finalVolume) / kBark;
+
+            resultDiv.className = 'cheat';
+            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br>
+            <div style="text-align: left; margin-top: 5px; font-size: 14px;">
+                Вес <b>${weight} кг</b> биологически невозможен для обхвата в <b>${circ} см</b>.<br><br>
+                • Даже самый зеленый и тяжелый арбуз этого типа не может весить более <b>${maxFairWeight.toFixed(2)} кг</b>.<br>
+                • Если этот арбуз идеально спелый, его честный вес составляет около <b>${idealFairWeight.toFixed(2)} кг</b>.<br><br>
+                <span style="color: #c62828; font-weight: bold;">⚠️ Похоже, весы продавца завышают показания. Перепроверьте вес!</span>
+            </div>`;
+            return;
+        }
+
+        // 5. Стандартные выверенные коридоры плотности плода
         if (density > 0.98) {
             resultDiv.className = 'unripe';
             resultDiv.innerHTML = `<b>❌ НЕДОЗРЕЛЫЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз слишком тяжелый для своего объема. Внутри сплошная плотная "водяная" структура. Мякоть будет бледной, несладкой и травянистой.</small></div>`;
