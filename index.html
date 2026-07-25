@@ -25,15 +25,16 @@
         .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
         .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
         
-        /* Стили подвала и фотографии */
-        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #95a5a6; border-top: 1px dashed #bdc3c7; padding-top: 15px; font-weight: 500; }
-        .showcase-img { width: 100%; max-width: 280px; height: auto; border-radius: 12px; margin: 15px auto 0 auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
+        /* Стили стильного подвала и стихотворения */
+        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #7f8c8d; border-top: 1px dashed #bdc3c7; padding-top: 15px; }
+        .creator-name { font-weight: bold; color: #2c3e50; margin-bottom: 10px; font-size: 13px; }
+        .poem-box { font-style: italic; color: #556b2f; line-height: 1.6; background: #f9fbf9; padding: 12px; border-radius: 8px; border-left: 3px solid #81c784; display: inline-block; text-align: left; }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>🍉 Спелый арбуз</h1>
-    <div class="subtitle">Расчет спелости по точным физическим параметрам плода</div>
+    <div class="subtitle">Расчет спелости по точным physical параметрам плода</div>
     
     <label for="variety">Тип / Сорт арбуза</label>
     <select id="variety" onchange="updateWeightHint()">
@@ -62,10 +63,15 @@
     <button onclick="analyzeWatermelon()">Проверить спелость</button>
     <div id="result"></div>
 
-    <!-- Финальный подвал с вашим авторством и эталонным фото -->
+    <!-- Обновленный подвал со стихотворением -->
     <div class="footer">
-        <div>Разработка: Александр Янпольский</div>
-        <img src="https://githubusercontent.com" alt="Овальный мраморный арбуз" class="showcase-img">
+        <div class="creator-name">Разработка: Александр Янпольский</div>
+        <div class="poem-box">
+            Арбуз и солнце день чудесный,<br>
+            Но даже если солнца нет.<br>
+            Не перестанет быть чудесным<br>
+            Тот день, в котором есть арбуз 🍉
+        </div>
     </div>
 </div>
 
