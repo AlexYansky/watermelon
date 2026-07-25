@@ -22,11 +22,8 @@
         .cheat { background: #eceff1; color: #37474f; border: 2px solid #b0bec5; animation: pulse 1.5s infinite; }
         .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
         .score-badge { display: inline-block; font-size: 28px; font-weight: bold; margin-bottom: 10px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
-        
-        /* Стиль динамической подсказки веса */
         .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
         .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
-        
         @keyframes pulse { 0% { border-color: #b0bec5; } 50% { border-color: #ff5252; } 100% { border-color: #b0bec5; } }
     </style>
 </head>
@@ -57,18 +54,19 @@
         <span class="input-icon">⚖️</span>
         <input type="number" id="weight" placeholder="Например: 8.63" step="0.01">
     </div>
-    <!-- Сюда на лету будет выводиться подсказка идеального веса -->
     <div id="weight-hint-text" class="weight-hint"></div>
 
     <button onclick="analyzeWatermelon()">Проверить спелость</button>
     <div id="result"></div>
 </div>
 <script>
-    // Функция автоматического расчета идеального веса "на лету"
     function updateWeightHint() {
         const variety = document.getElementById('variety').value;
         const circ = parseFloat(document.getElementById('circ').value);
         const hintDiv = document.getElementById('weight-hint-text');
+
+        // Скрываем итоговый результат при изменении вводных данных
+        document.getElementById('result').style.display = 'none';
 
         if (!circ || circ < 20) {
             hintDiv.style.display = 'none';
@@ -77,14 +75,11 @@
 
         const radius = circ / (2 * Math.PI);
         let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
-        
         let kForm = 1.0; let kBark = 1.0;
         if (variety === 'oval') { kForm = 1.28; kBark = 0.98; }
         else if (variety === 'yellow') { kBark = 0.92; }
         
         const finalVolume = baseVolume * kForm;
-        
-        // Референсные значения веса для коридора идеальной спелости (плотность от 0.90 до 0.98)
         const minWeight = (0.90 * finalVolume) / kBark;
         const maxWeight = (0.98 * finalVolume) / kBark;
 
@@ -97,11 +92,15 @@
         const circ = parseFloat(document.getElementById('circ').value);
         const weight = parseFloat(document.getElementById('weight').value);
         const resultDiv = document.getElementById('result');
+        const hintDiv = document.getElementById('weight-hint-text');
+        
         if (!circ || !weight) { alert('Заполните поля!'); return; }
         
+        // Скрываем предварительную подсказку веса после клика на расчет
+        hintDiv.style.display = 'none';
+
         const radius = circ / (2 * Math.PI);
         let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
-        
         let kForm = 1.0; let kBark = 1.0; let cheatLimit = 1.15;
 
         if (variety === 'oval') { kForm = 1.28; kBark = 0.98; cheatLimit = 1.05; }
@@ -112,23 +111,14 @@
         
         resultDiv.style.display = 'block';
 
-        // ТРИЗ-ТЕСТ «Анти-Обвес»
         if (density > cheatLimit) {
             const maxFairWeight = (1.01 * finalVolume) / kBark;
             const idealFairWeight = (0.94 * finalVolume) / kBark;
-
             resultDiv.className = 'cheat';
-            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br>
-            <div style="text-align: left; margin-top: 5px; font-size: 14px;">
-                Вес <b>${weight} кг</b> биологически невозможен для обхвата в <b>${circ} см</b>.<br><br>
-                • Даже самый зеленый арбуз этого типа не может весить более <b>${maxFairWeight.toFixed(2)} кг</b>.<br>
-                • Если этот арбуз идеально спелый, его честный вес составляет около <b>${idealFairWeight.toFixed(2)} кг</b>.<br><br>
-                <span style="color: #c62828; font-weight: bold;">⚠️ Похоже, весы продавца завышают показания. Перепроверьте вес!</span>
-            </div>`;
+            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br><div style="text-align: left; margin-top: 5px; font-size: 14px;">Вес <b>${weight} кг</b> биологически невозможен для обхвата в <b>${circ} см</b>.<br><br>• Даже самый зеленый арбуз этого типа не может весить более <b>${maxFairWeight.toFixed(2)} кг</b>.<br>• Если этот арбуз идеально спелый, его честный вес составляет около <b>${idealFairWeight.toFixed(2)} кг</b>.<br><br><span style="color: #c62828; font-weight: bold;">⚠️ Похоже, весы продавца завышают показания. Перепроверьте вес!</span></div>`;
             return;
         }
 
-        // Алгоритм динамического расчета 10-балльной шкалы
         let score = 0;
         if (density >= 0.93 && density <= 0.95) { score = 10; } 
         else if (density > 0.95 && density <= 0.96) { score = 9; } 
@@ -143,7 +133,6 @@
 
         const scoreGuide = `<div class="score-info">💡 Референс: Арбузы с оценкой 7/10 и выше считаются оптимальными для покупки.</div>`;
 
-        // Вывод результатов с баллами
         if (density > 0.98) {
             resultDiv.className = 'unripe';
             resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>❌ НЕДОЗРЕЛЫЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз слишком тяжелый для своего объема. Внутри сплошная плотная "водяная" структура. Мякоть будет бледной, несладкой и травянистой.</small></div>${scoreGuide}`;
