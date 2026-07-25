@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТРИЗ-Спеломер 2.0</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f0f4f1; color: #2c3e50; padding: 15px; margin: 0; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 420px; margin: 20px auto; }
+        h1 { text-align: center; color: #1b5e20; font-size: 24px; margin-top: 0; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; font-size: 13px; margin-bottom: 25px; }
+        label { display: block; font-weight: bold; margin: 15px 0 6px; font-size: 14px; color: #34495e; }
+        select, input { width: 100%; padding: 14px; border: 2px solid #bdc3c7; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
+        button { width: 100%; background: #4caf50; color: white; border: none; padding: 16px; border-radius: 10px; font-size: 17px; font-weight: bold; margin-top: 25px; cursor: pointer; }
+        #result { margin-top: 25px; padding: 18px; border-radius: 12px; display: none; text-align: center; font-size: 16px; line-height: 1.5; }
+        .ripe { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
+        .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
+        .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🍉 ТРИЗ-Спеломер 2.0</h1>
+    <div class="subtitle">Расчет спелости по физическим параметрам</div>
+    <label for="variety">Тип / Сорт арбуза</label>
+    <select id="variety">
+        <option value="classic">Обычный круглый полосатый</option>
+        <option value="oval">Вытянутый / Овальный</option>
+        <option value="yellow">Желтый / Без семечек</option>
+    </select>
+    <label for="circ">Длина окружности (см)</label>
+    <input type="number" id="circ" placeholder="Замерьте лентой по экватору">
+    <label for="weight">Точный вес (кг)</label>
+    <input type="number" id="weight" placeholder="Значение с весов">
+    <button onclick="analyzeWatermelon()">Проверить спелость</button>
+    <div id="result"></div>
+</div>
+<script>
+    function analyzeWatermelon() {
+        const variety = document.getElementById('variety').value;
+        const circ = parseFloat(document.getElementById('circ').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+        const resultDiv = document.getElementById('result');
+        if (!circ || !weight) { alert('Заполните поля!'); return; }
+        const radius = circ / (2 * Math.PI);
+        let volume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
+        let kForm = 1.0; let kBark = 1.0;
+        if (variety === 'oval') { kForm = 1.28; kBark = 0.98; }
+        else if (variety === 'yellow') { kBark = 0.92; }
+        const density = (weight * kBark) / (volume * kForm);
+        resultDiv.style.display = 'block';
+        if (density > 0.98) {
+            resultDiv.className = 'unripe';
+            resultDiv.innerHTML = `<b>❌ НЕДОЗРЕЛЫЙ АРБУЗ</b><br>Плотность: ${density.toFixed(2)}<br><small>Мякоть плотная и несладкая.</small>`;
+        } else if (density >= 0.90 && density <= 0.98) {
+            resultDiv.className = 'ripe';
+            resultDiv.innerHTML = `<b>🎉 ИДЕАЛЬНО СПЕЛЫЙ!</b><br>Плотность: ${density.toFixed(2)}<br><small>Мякоть сахаристая и спелая!</small>`;
+        } else {
+            resultDiv.className = 'overripe';
+            resultDiv.innerHTML = `<b>⚠️ ПЕРЕСПЕЛЫЙ / ВАТНЫЙ</b><br>Плотность: ${density.toFixed(2)}<br><small>Внутри могут быть пустоты.</small>`;
+        }
+    }
+</script>
+</body>
+</html>
