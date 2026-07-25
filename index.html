@@ -21,6 +21,12 @@
         .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
         .cheat { background: #eceff1; color: #37474f; border: 2px solid #b0bec5; animation: pulse 1.5s infinite; }
         .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
+        .score-badge { display: inline-block; font-size: 28px; font-weight: bold; margin-bottom: 10px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
+        
+        /* Стиль динамической подсказки веса */
+        .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
+        .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
+        
         @keyframes pulse { 0% { border-color: #b0bec5; } 50% { border-color: #ff5252; } 100% { border-color: #b0bec5; } }
     </style>
 </head>
@@ -30,7 +36,7 @@
     <div class="subtitle">Расчет спелости и проверка веса плода</div>
     
     <label for="variety">Тип / Сорт арбуза</label>
-    <select id="variety">
+    <select id="variety" onchange="updateWeightHint()">
         <option value="oval">Вытянутый / Овальный</option>
         <option value="classic">Обычный круглый полосатый</option>
         <option value="yellow">Желтый / Без семечек</option>
@@ -43,7 +49,7 @@
     <label for="circ">Длина окружности (см)</label>
     <div class="input-wrapper">
         <span class="input-icon">📏</span>
-        <input type="number" id="circ" placeholder="Введите обхват поперек">
+        <input type="number" id="circ" placeholder="Введите обхват поперек" oninput="updateWeightHint()">
     </div>
 
     <label for="weight">Точный вес арбуза (кг)</label>
@@ -51,11 +57,41 @@
         <span class="input-icon">⚖️</span>
         <input type="number" id="weight" placeholder="Например: 8.63" step="0.01">
     </div>
+    <!-- Сюда на лету будет выводиться подсказка идеального веса -->
+    <div id="weight-hint-text" class="weight-hint"></div>
 
     <button onclick="analyzeWatermelon()">Проверить спелость</button>
     <div id="result"></div>
 </div>
 <script>
+    // Функция автоматического расчета идеального веса "на лету"
+    function updateWeightHint() {
+        const variety = document.getElementById('variety').value;
+        const circ = parseFloat(document.getElementById('circ').value);
+        const hintDiv = document.getElementById('weight-hint-text');
+
+        if (!circ || circ < 20) {
+            hintDiv.style.display = 'none';
+            return;
+        }
+
+        const radius = circ / (2 * Math.PI);
+        let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
+        
+        let kForm = 1.0; let kBark = 1.0;
+        if (variety === 'oval') { kForm = 1.28; kBark = 0.98; }
+        else if (variety === 'yellow') { kBark = 0.92; }
+        
+        const finalVolume = baseVolume * kForm;
+        
+        // Референсные значения веса для коридора идеальной спелости (плотность от 0.90 до 0.98)
+        const minWeight = (0.90 * finalVolume) / kBark;
+        const maxWeight = (0.98 * finalVolume) / kBark;
+
+        hintDiv.style.display = 'block';
+        hintDiv.innerHTML = `📋 <b>Оптимальный вес для ${circ} см:</b> от <b>${minWeight.toFixed(2)}</b> до <b>${maxWeight.toFixed(2)} кг</b>`;
+    }
+
     function analyzeWatermelon() {
         const variety = document.getElementById('variety').value;
         const circ = parseFloat(document.getElementById('circ').value);
@@ -63,62 +99,60 @@
         const resultDiv = document.getElementById('result');
         if (!circ || !weight) { alert('Заполните поля!'); return; }
         
-        // 1. Вычисляем радиус по экватору
         const radius = circ / (2 * Math.PI);
-        
-        // 2. Считаем базовый объем шара (в литрах)
         let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
         
-        // 3. Устанавливаем коэффициенты формы, корки и индивидуальный порог обвеса
-        let kForm = 1.0; 
-        let kBark = 1.0;
-        let cheatLimit = 1.15; // Порог плотности для круглого арбуза
+        let kForm = 1.0; let kBark = 1.0; let cheatLimit = 1.15;
 
-        if (variety === 'oval') {
-            kForm = 1.28; 
-            kBark = 0.98;
-            cheatLimit = 1.05; // Сниженный порог для эллипсоидов (у них объем больше)
-        } else if (variety === 'yellow') {
-            kBark = 0.92;
-            cheatLimit = 1.10; // Порог для тонкокорых сортов
-        }
+        if (variety === 'oval') { kForm = 1.28; kBark = 0.98; cheatLimit = 1.05; }
+        else if (variety === 'yellow') { kBark = 0.92; cheatLimit = 1.10; }
         
-        // Итоговый точный объем плода
         const finalVolume = baseVolume * kForm;
-        
-        // Вычисляем плотность мякоти плода
         const density = (weight * kBark) / finalVolume;
         
         resultDiv.style.display = 'block';
 
-        // 4. ТРИЗ-ТЕСТ «Анти-Обвес»
+        // ТРИЗ-ТЕСТ «Анти-Обвес»
         if (density > cheatLimit) {
-            // Расчет физического предела веса неспелого плода (плотность ~1.01)
             const maxFairWeight = (1.01 * finalVolume) / kBark;
-            // Расчет идеального веса спелого плода (плотность ~0.94)
             const idealFairWeight = (0.94 * finalVolume) / kBark;
 
             resultDiv.className = 'cheat';
             resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br>
             <div style="text-align: left; margin-top: 5px; font-size: 14px;">
                 Вес <b>${weight} кг</b> биологически невозможен для обхвата в <b>${circ} см</b>.<br><br>
-                • Даже самый зеленый и тяжелый арбуз этого типа не может весить более <b>${maxFairWeight.toFixed(2)} кг</b>.<br>
+                • Даже самый зеленый арбуз этого типа не может весить более <b>${maxFairWeight.toFixed(2)} кг</b>.<br>
                 • Если этот арбуз идеально спелый, его честный вес составляет около <b>${idealFairWeight.toFixed(2)} кг</b>.<br><br>
                 <span style="color: #c62828; font-weight: bold;">⚠️ Похоже, весы продавца завышают показания. Перепроверьте вес!</span>
             </div>`;
             return;
         }
 
-        // 5. Стандартные выверенные коридоры плотности плода
+        // Алгоритм динамического расчета 10-балльной шкалы
+        let score = 0;
+        if (density >= 0.93 && density <= 0.95) { score = 10; } 
+        else if (density > 0.95 && density <= 0.96) { score = 9; } 
+        else if (density >= 0.91 && density < 0.93) { score = 8; } 
+        else if (density > 0.96 && density <= 0.97) { score = 7; } 
+        else if (density >= 0.88 && density < 0.91) { score = 6; } 
+        else if (density > 0.97 && density <= 0.98) { score = 5; } 
+        else if (density >= 0.81 && density < 0.88) { score = 5; } 
+        else if (density >= 0.76 && density < 0.81) { score = 4; } 
+        else if (density > 0.98 && density <= 1.01) { score = 3; } 
+        else { score = 2; }
+
+        const scoreGuide = `<div class="score-info">💡 Референс: Арбузы с оценкой 7/10 и выше считаются оптимальными для покупки.</div>`;
+
+        // Вывод результатов с баллами
         if (density > 0.98) {
             resultDiv.className = 'unripe';
-            resultDiv.innerHTML = `<b>❌ НЕДОЗРЕЛЫЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз слишком тяжелый для своего объема. Внутри сплошная плотная "водяная" структура. Мякоть будет бледной, несладкой и травянистой.</small></div>`;
+            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>❌ НЕДОЗРЕЛЫЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз слишком тяжелый для своего объема. Внутри сплошная плотная "водяная" структура. Мякоть будет бледной, несладкой и травянистой.</small></div>${scoreGuide}`;
         } else if (density >= 0.90 && density <= 0.98) {
             resultDiv.className = 'ripe';
-            resultDiv.innerHTML = `<b>🎉 ИДЕАЛЬНО СПЕЛЫЙ! (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Эталонный баланс физических свойств. Мякоть плотная, хрустящая, очень сочная и равномерно сладкая. Самый надежный выбор.</small></div>`;
+            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>🎉 ИДЕАЛЬНО СПЕЛЫЙ! (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Эталонный баланс физических свойств. Мякоть плотная, хрустящая, очень сочная и равномерно сладкая. Самый надежный выбор.</small></div>${scoreGuide}`;
         } else {
             resultDiv.className = 'overripe';
-            resultDiv.innerHTML = `<b>⚠️ ВАТНЫЙ / СВЕРХСЛАДКИЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз критически легкий. Мякоть имеет <b>повышенную сахаристость («крупчатая»)</b>, но ее структура уже <b>ватно-рыхлая</b>, возможно образование внутренних пустот. Корка сильно натянута — плод может сам треснуть при первом надрезе ножом.</small></div>`;
+            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>⚠️ ВАТНЫЙ / СВЕРХСЛАДКИЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз критически легкий. Мякоть имеет <b>повышенную сахаристость («крупчатая»)</b>, но ее структура уже <b>ватно-рыхлая</b>, возможно образование внутренних пустот. Корка сильно натянута — плод может сам треснуть при первом надрезе ножом.</small></div>${scoreGuide}`;
         }
     }
 </script>
