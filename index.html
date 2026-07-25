@@ -73,14 +73,14 @@
         
         <div class="canvas-container" id="canvas-container">
             <canvas id="scanner-canvas"></canvas>
-            <div class="controls-hint">👆 Выберите режим и перетаскивайте круги пальцем по экрану. Нажимайте ➕/➖ для изменения их диаметров.</div>
+            <div class="controls-hint">👆 Перетаскивайте круги пальцем по экрану. Нажимайте ➕/➖ для изменения их диаметров под реальный размер.</div>
             <div class="control-group">
                 <button class="control-btn active" id="mode-melon" onclick="setEditMode('melon')">🟢 Визир Арбуза</button>
                 <button class="control-btn" id="mode-marker" onclick="setEditMode('marker')">🔴 Визир Маркера</button>
             </div>
             <div class="control-group">
-                <button class="control-btn" onclick="adjustSize(-3)">➖ Меньше</button>
-                <button class="control-btn" onclick="adjustSize(3)">➕ Больше</button>
+                <button class="control-btn" onclick="adjustSize(-4)">➖ Меньше</button>
+                <button class="control-btn" onclick="adjustSize(4)">➕ Больше</button>
             </div>
         </div>
     </div>
@@ -99,8 +99,8 @@
     const markerSizes = { coin1: 2.05, coin5: 2.50, coin10: 2.20, card: 8.56 };
     let currentCircumference = 0;
     let editMode = 'melon';
-    let melonViz = { x: 200, y: 200, rX: 90 };
-    let markerViz = { x: 200, y: 120, r: 18 };
+    let melonViz = { x: 200, y: 200, rX: 85 };
+    let markerViz = { x: 200, y: 110, r: 15 };
     let imgObj = null;
     let canvas, ctx;
 
@@ -114,21 +114,17 @@
     }
 
     function handlePhoto(e) {
-        const file = e.target.files; if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            imgObj = new Image();
-            imgObj.onload = function() {
-                canvas = document.getElementById('scanner-canvas'); ctx = canvas.getContext('2d');
-                canvas.width = 400; canvas.height = (imgObj.height / imgObj.width) * 400;
-                document.getElementById('canvas-container').style.display = 'block';
-                melonViz.x = canvas.width / 2; melonViz.y = canvas.height / 2;
-                markerViz.x = canvas.width / 2; markerViz.y = canvas.height / 2 - 60;
-                initTouchEvents(); drawScanner();
-            }
-            imgObj.src = event.target.result;
+        const files = e.target.files; if (!files || files.length === 0) return;
+        imgObj = new Image();
+        imgObj.onload = function() {
+            canvas = document.getElementById('scanner-canvas'); ctx = canvas.getContext('2d');
+            canvas.width = 400; canvas.height = (imgObj.height / imgObj.width) * 400;
+            document.getElementById('canvas-container').style.display = 'block';
+            melonViz.x = canvas.width / 2; melonViz.y = canvas.height / 2;
+            markerViz.x = canvas.width / 2; markerViz.y = canvas.height / 2 - 50;
+            initTouchEvents(); drawScanner();
         }
-        reader.readAsDataURL(file);
+        imgObj.src = URL.createObjectURL(files[0]);
     }
 
     function setEditMode(mode) { editMode = mode; document.getElementById('mode-melon').classList.toggle('active', mode === 'melon'); document.getElementById('mode-marker').classList.toggle('active', mode === 'marker'); drawScanner(); }
@@ -138,18 +134,20 @@
         let isDragging = false;
         const getCoords = (e) => {
             const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches.clientX : e.clientX;
-            const clientY = e.touches ? e.touches.clientY : e.clientY;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             return { x: ((clientX - rect.left) / rect.width) * canvas.width, y: ((clientY - rect.top) / rect.height) * canvas.height };
         };
         canvas.onmousedown = () => { isDragging = true; }; canvas.onmouseup = () => { isDragging = false; };
         canvas.ontouchstart = () => { isDragging = true; }; canvas.ontouchend = () => { isDragging = false; };
-        canvas.onmousemove = (e) => { if (!isDragging) return; const coords = getCoords(e); if (editMode === 'melon') { melonViz.x = coords.x; melonViz.y = coords.y; } else { markerViz.x = coords.x; markerViz.y = coords.y; } drawScanner(); };
-        canvas.ontouchmove = (e) => { if (!isDragging) return; e.preventDefault(); const coords = getCoords(e); if (editMode === 'melon') { melonViz.x = coords.x; melonViz.y = coords.y; } else { markerViz.x = coords.x; markerViz.y = coords.y; } drawScanner(); };
+        const moveHandler = (e) => {
+            if (!isDragging) return; if (e.touches) e.preventDefault(); const coords = getCoords(e);
+            if (editMode === 'melon') { melonViz.x = coords.x; melonViz.y = coords.y; } else { markerViz.x = coords.x; markerViz.y = coords.y; } drawScanner();
+        };
+        canvas.onmousemove = moveHandler; canvas.ontouchmove = moveHandler;
     }
-
     function drawScanner() {
-        if (!imgObj) return; ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
+        if (!imgObj || !canvas) return; ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
         const variety = document.getElementById('variety').value;
         ctx.beginPath(); ctx.strokeStyle = '#4caf50'; ctx.lineWidth = 3;
         if (variety === 'oval') { ctx.ellipse(melonViz.x, melonViz.y, melonViz.rX, melonViz.rX * 1.25, 0, 0, 2 * Math.PI); }
@@ -169,56 +167,39 @@
     }
 
     function updateWeightHint() {
-        const method = document.getElementById('method').value;
-        const variety = document.getElementById('variety').value;
-        const hintDiv = document.getElementById('weight-hint-text');
+        const method = document.getElementById('method').value; const variety = document.getElementById('variety').value; const hintDiv = document.getElementById('weight-hint-text');
         let circ = (method === 'tape') ? parseFloat(document.getElementById('circ').value) : currentCircumference;
         if (method === 'tape') currentCircumference = circ;
         if (!circ || circ < 20) { hintDiv.style.display = 'none'; return; }
-        const radius = circ / (2 * Math.PI);
-        let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
-        let kForm = (variety === 'oval') ? 1.28 : 1.0;
-        let kBark = (variety === 'oval') ? 0.98 : (variety === 'yellow' ? 0.92 : 1.0);
-        const finalVolume = baseVolume * kForm;
-        hintDiv.style.display = 'block';
+        const radius = circ / (2 * Math.PI); let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
+        let kForm = (variety === 'oval') ? 1.28 : 1.0; let kBark = (variety === 'oval') ? 0.98 : (variety === 'yellow' ? 0.92 : 1.0);
+        const finalVolume = baseVolume * kForm; hintDiv.style.display = 'block';
         hintDiv.innerHTML = `📋 <b>Оптимальный вес для ${circ.toFixed(1)} см:</b> от <b>${((0.90 * finalVolume) / kBark).toFixed(2)}</b> до <b>${((0.98 * finalVolume) / kBark).toFixed(2)} кг</b>`;
     }
 
     function analyzeWatermelon() {
-        const method = document.getElementById('method').value;
-        const variety = document.getElementById('variety').value;
-        const weight = parseFloat(document.getElementById('weight').value);
-        const resultDiv = document.getElementById('result');
-        if (method !== 'tape' && !imgObj) { alert('Загрузите фото!'); return; }
+        const method = document.getElementById('method').value; const variety = document.getElementById('variety').value; const weight = parseFloat(document.getElementById('weight').value); const resultDiv = document.getElementById('result');
+        if (method !== 'tape' && !imgObj) { alert('Пожалуйста, сначала загрузите фото арбуза!'); return; }
         if (!currentCircumference || !weight) { alert('Заполните вес и габариты!'); return; }
-        const circ = currentCircumference; const radius = circ / (2 * Math.PI);
-        let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
+        document.getElementById('weight-hint-text').style.display = 'none';
+        const circ = currentCircumference; const radius = circ / (2 * Math.PI); let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
         let kForm = 1.0; let kBark = 1.0; let cheatLimit = 1.15;
-        if (variety === 'oval') { kForm = 1.28; kBark = 0.98; cheatLimit = 1.05; }
-        else if (variety === 'yellow') { kBark = 0.92; cheatLimit = 1.10; }
-        const finalVolume = baseVolume * kForm; const density = (weight * kBark) / finalVolume;
-        resultDiv.style.display = 'block';
+        if (variety === 'oval') { kForm = 1.28; kBark = 0.98; cheatLimit = 1.05; } else if (variety === 'yellow') { kBark = 0.92; cheatLimit = 1.10; }
+        const finalVolume = baseVolume * kForm; const density = (weight * kBark) / finalVolume; resultDiv.style.display = 'block';
 
         if (density > cheatLimit) {
             resultDiv.className = 'cheat';
-            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br><div style="text-align: left; margin-top: 5px; font-size: 14px;">Вес <b>${weight} кг</b> биологически невозможен.<br>• Максимум: <b>${((1.01 * finalVolume) / kBark).toFixed(2)} кг</b>.<br>• Вес спелого: около <b>${((0.94 * finalVolume) / kBark).toFixed(2)} кг</b>.</div>`;
+            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br><div style="text-align: left; margin-top: 5px; font-size: 14px;">Вес <b>${weight} кг</b> невозможен для обхвата в <b>${circ.toFixed(1)} см</b>.<br><br>• Максимум: <b>${((1.01 * finalVolume) / kBark).toFixed(2)} кг</b>.<br>• Вес спелого: около <b>${((0.94 * finalVolume) / kBark).toFixed(2)} кг</b>.<br><br><span style="color: #c62828; font-weight: bold;">⚠️ Похоже, весы продавца завышают показания!</span></div>`;
             return;
         }
 
         let score = 2;
-        if (density >= 0.93 && density <= 0.95) score = 10;
-        else if (density > 0.95 && density <= 0.96) score = 9;
-        else if (density >= 0.91 && density < 0.93) score = 8;
-        else if (density > 0.96 && density <= 0.97) score = 7;
-        else if (density >= 0.88 && density < 0.91) score = 6;
-        else if (density > 0.97 && density <= 0.98) score = 5;
-        else if (density >= 0.81 && density < 0.88) score = 5;
-        else if (density >= 0.76 && density < 0.81) score = 4;
-
+        if (density >= 0.93 && density <= 0.95) score = 10; else if (density > 0.95 && density <= 0.96) score = 9; else if (density >= 0.91 && density < 0.93) score = 8; else if (density > 0.96 && density <= 0.97) score = 7; else if (density >= 0.88 && density < 0.91) score = 6; else if (density > 0.97 && density <= 0.98) score = 5; else if (density >= 0.81 && density < 0.88) score = 5; else if (density >= 0.76 && density < 0.81) score = 4;
         const scoreGuide = `<div class="score-info">💡 Референс: Арбузы с оценкой 7/10 и выше считаются оптимальными для покупки.</div>`;
+
         if (density > 0.98) { resultDiv.className = 'unripe'; resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>❌ НЕДОЗРЕЛЫЙ (${density.toFixed(2)})</b><br><small>Мякоть плотная и травянистая.</small>${scoreGuide}`; }
-        else if (density >= 0.90 && density <= 0.98) { resultDiv.className = 'ripe'; resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>🎉 ИДЕАЛЬНО СПЕЛЫЙ! (${density.toFixed(2)})</b><br><small>Мякоть плотная, хрустящая и сладкая.</small>${scoreGuide}`; }
-        else { resultDiv.className = 'overripe'; resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>⚠️ ВАТНЫЙ / СВЕРХСЛАДКИЙ (${density.toFixed(2)})</b><br><small>Мякоть крупчатая, но рыхлая.</small>${scoreGuide}`; }
+        else if (density >= 0.90 && density <= 0.98) { resultDiv.className = 'ripe'; resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>🎉 ИДЕАЛЬНО СПЕЛЫЙ! (${density.toFixed(2)})</b><br><small>Мякоть плотная, сочная и равномерно сладкая.</small>${scoreGuide}`; }
+        else { resultDiv.className = 'overripe'; resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>⚠️ ВАТНЫЙ / СВЕРХСЛАДКИЙ (${density.toFixed(2)})</b><br><small>Мякоть крупчатая, но рыхлая. Корка натянута.</small>${scoreGuide}`; }
     }
 </script>
 </body>
