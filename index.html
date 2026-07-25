@@ -15,12 +15,10 @@
         .input-wrapper { position: relative; width: 100%; }
         .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #7f8c8d; pointer-events: none; }
         button { width: 100%; background: #4caf50; color: white; border: none; padding: 16px; border-radius: 10px; font-size: 17px; font-weight: bold; margin-top: 25px; cursor: pointer; }
-        #result { margin-top: 25px; padding: 18px; border-radius: 12px; display: none; text-align: center; font-size: 16px; line-height: 1.5; }
+        #result { margin-top: 25px; padding: 18px; border-radius: 12px; display: none; text-align: center; font-size: 15px; line-height: 1.5; }
         .ripe { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
         .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
         .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
-        
-        /* Компактный и легкий блок подсказки */
         .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
     </style>
 </head>
@@ -32,11 +30,10 @@
     <label for="variety">Тип / Сорт арбуза</label>
     <select id="variety">
         <option value="classic">Обычный круглый полосатый</option>
-        <option value="oval">Вытянутый / Овальный</option>
+        <option value="oval">Вытянутый / Овальный (Мраморный, Чарльстон)</option>
         <option value="yellow">Желтый / Без семечек</option>
     </select>
     
-    <!-- Ваша новая лаконичная подсказка -->
     <div class="hint-box">
         💡 <b>Правило замера:</b> Обхватите арбуз лентой строго <b>поперек (по экватору)</b>, как если бы плод стоял хвостиком вверх.
     </div>
@@ -72,13 +69,13 @@
         resultDiv.style.display = 'block';
         if (density > 0.98) {
             resultDiv.className = 'unripe';
-            resultDiv.innerHTML = `<b>❌ НЕДОЗРЕЛЫЙ АРБУЗ</b><br>Плотность: ${density.toFixed(2)}<br><small>Мякоть плотная, водянистая и несладкая.</small>`;
+            resultDiv.innerHTML = `<b>❌ НЕДОЗРЕЛЫЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз слишком тяжелый для своего объема. Внутри сплошная плотная "водяная" структура. Мякоть будет бледной, несладкой и травянистой.</small></div>`;
         } else if (density >= 0.90 && density <= 0.98) {
             resultDiv.className = 'ripe';
-            resultDiv.innerHTML = `<b>🎉 ИДЕАЛЬНО СПЕЛЫЙ!</b><br>Плотность: ${density.toFixed(2)}<br><small>Мякоть сахаристая, сочная и упругая!</small>`;
+            resultDiv.innerHTML = `<b>🎉 ИДЕАЛЬНО СПЕЛЫЙ! (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Эталонный баланс физических свойств. Мякоть плотная, хрустящая, очень сочная и равномерно сладкая. Самый надежный выбор.</small></div>`;
         } else {
             resultDiv.className = 'overripe';
-            resultDiv.innerHTML = `<b>⚠️ ПЕРЕСПЕЛЫЙ / ВАТНЫЙ</b><br>Плотность: ${density.toFixed(2)}<br><small>Внутри высокая пористость, сухость или пустоты.</small>`;
+            resultDiv.innerHTML = `<b>⚠️ ВАТНЫЙ / СВЕРХСЛАДКИЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз критически легкий. Мякоть имеет <b>повышенную сахаристость («крупчатая»)</b>, но ее структура уже <b>ватно-рыхлая</b>, возможно образование внутренних пустот. Корка сильно натянута — плод может сам треснуть при первом надрезе ножом.</small></div>`;
         }
     }
 </script>
