@@ -25,6 +25,7 @@
         .score-badge { display: inline-block; font-size: 28px; font-weight: bold; margin-bottom: 10px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
         .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
         .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
+        
         #photo-section { display: none; margin-top: 15px; background: #fafafa; border: 2px dashed #bdc3c7; padding: 15px; border-radius: 10px; text-align: center; }
         .canvas-container { position: relative; width: 100%; margin-top: 15px; display: none; touch-action: none; background: #000; border-radius: 8px; overflow: hidden; }
         canvas { display: block; width: 100%; height: auto; }
@@ -32,6 +33,8 @@
         .control-group { display: flex; gap: 8px; margin-top: 8px; }
         .control-btn { flex: 1; padding: 10px; font-size: 13px; background: #e0e0e0; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .control-btn.active { background: #4caf50; color: white; }
+        .control-subgroup { display: flex; flex-direction: column; flex: 1; gap: 4px; }
+        .sub-btn { padding: 6px; font-size: 11px; background: #cfd8dc; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -73,15 +76,22 @@
         
         <div class="canvas-container" id="canvas-container">
             <canvas id="scanner-canvas"></canvas>
-            <div class="controls-hint">👆 Перетаскивайте круги пальцем по экрану. Нажимайте ➕/➖ для изменения их диаметров под реальный размер.</div>
+            <div class="controls-hint">👆 Тащите круги пальцем. Выберите режим и настраивайте ширину/высоту контура под реальный объект на фото.</div>
             <div class="control-group">
                 <button class="control-btn active" id="mode-melon" onclick="setEditMode('melon')">🟢 Визир Арбуза</button>
                 <button class="control-btn" id="mode-marker" onclick="setEditMode('marker')">🔴 Визир Маркера</button>
             </div>
             <div class="control-group">
-                <button class="control-btn" onclick="adjustSize(-4)">➖ Меньше</button>
-                <button class="control-btn" onclick="adjustSize(4)">➕ Больше</button>
+                <div class="control-subgroup">
+                    <button class="sub-btn" onclick="adjustSize('width', 3)">↔️ Ширина ➕</button>
+                    <button class="sub-btn" onclick="adjustSize('width', -3)">↔️ Ширина ➖</button>
+                </div>
+                <div class="control-subgroup" id="height-controls">
+                    <button class="sub-btn" onclick="adjustSize('height', 3)">↕️ Высота ➕</button>
+                    <button class="sub-btn" onclick="adjustSize('height', -3)">↕️ Высота ➖</button>
+                </div>
             </div>
+            <button class="control-btn" id="card-orient-btn" style="margin-top:8px; background:#37474f; color:white; display:none;" onclick="toggleCardOrientation()">🔄 Развернуть карту</button>
         </div>
     </div>
 
@@ -99,7 +109,8 @@
     const markerSizes = { coin1: 2.05, coin5: 2.50, coin10: 2.20, card: 8.56 };
     let currentCircumference = 0;
     let editMode = 'melon';
-    let melonViz = { x: 200, y: 200, rX: 85 };
+    let cardOrientation = 'horizontal';
+    let melonViz = { x: 200, y: 200, rX: 85, rY: 85 };
     let markerViz = { x: 200, y: 110, r: 15 };
     let imgObj = null;
     let canvas, ctx;
@@ -113,6 +124,11 @@
         else { tapeSec.style.display = 'none'; photoSec.style.display = 'block'; if (imgObj) drawScanner(); else document.getElementById('weight-hint-text').style.display = 'none'; }
     }
 
+    function toggleCardOrientation() {
+        cardOrientation = (cardOrientation === 'horizontal') ? 'vertical' : 'horizontal';
+        drawScanner();
+    }
+
     function handlePhoto(e) {
         const files = e.target.files; if (!files || files.length === 0) return;
         imgObj = new Image();
@@ -120,22 +136,43 @@
             canvas = document.getElementById('scanner-canvas'); ctx = canvas.getContext('2d');
             canvas.width = 400; canvas.height = (imgObj.height / imgObj.width) * 400;
             document.getElementById('canvas-container').style.display = 'block';
+            const method = document.getElementById('method').value;
+            document.getElementById('card-orient-btn').style.display = (method === 'card') ? 'block' : 'none';
             melonViz.x = canvas.width / 2; melonViz.y = canvas.height / 2;
+            melonViz.rX = 85; melonViz.rY = 85;
             markerViz.x = canvas.width / 2; markerViz.y = canvas.height / 2 - 50;
             initTouchEvents(); drawScanner();
         }
         imgObj.src = URL.createObjectURL(files[0]);
     }
 
-    function setEditMode(mode) { editMode = mode; document.getElementById('mode-melon').classList.toggle('active', mode === 'melon'); document.getElementById('mode-marker').classList.toggle('active', mode === 'marker'); drawScanner(); }
-    function adjustSize(amount) { if (editMode === 'melon') { melonViz.rX += amount; if (melonViz.rX < 15) melonViz.rX = 15; } else { markerViz.r += amount; if (markerViz.r < 5) markerViz.r = 5; } drawScanner(); }
+    function setEditMode(mode) {
+        editMode = mode;
+        document.getElementById('mode-melon').classList.toggle('active', mode === 'melon');
+        document.getElementById('mode-marker').classList.toggle('active', mode === 'marker');
+        document.getElementById('height-controls').style.visibility = (mode === 'melon') ? 'visible' : 'hidden';
+        drawScanner();
+    }
+    
+    function adjustSize(axis, amount) {
+        if (editMode === 'melon') {
+            if (axis === 'width') melonViz.rX += amount;
+            if (axis === 'height') melonViz.rY += amount;
+            if (melonViz.rX < 15) melonViz.rX = 15;
+            if (melonViz.rY < 15) melonViz.rY = 15;
+        } else {
+            markerViz.r += amount;
+            if (markerViz.r < 5) markerViz.r = 5;
+        }
+        drawScanner();
+    }
 
     function initTouchEvents() {
         let isDragging = false;
         const getCoords = (e) => {
             const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const clientX = e.touches ? e.touches.clientX : e.clientX;
+            const clientY = e.touches ? e.touches.clientY : e.clientY;
             return { x: ((clientX - rect.left) / rect.width) * canvas.width, y: ((clientY - rect.top) / rect.height) * canvas.height };
         };
         canvas.onmousedown = () => { isDragging = true; }; canvas.onmouseup = () => { isDragging = false; };
@@ -148,21 +185,31 @@
     }
     function drawScanner() {
         if (!imgObj || !canvas) return; ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
-        const variety = document.getElementById('variety').value;
+        
+        // Рисуем кольцо арбуза с раздельными ручными радиусами по ширине и высоте
         ctx.beginPath(); ctx.strokeStyle = '#4caf50'; ctx.lineWidth = 3;
-        if (variety === 'oval') { ctx.ellipse(melonViz.x, melonViz.y, melonViz.rX, melonViz.rX * 1.25, 0, 0, 2 * Math.PI); }
-        else { ctx.arc(melonViz.x, melonViz.y, melonViz.rX, 0, 2 * Math.PI); }
+        ctx.ellipse(melonViz.x, melonViz.y, melonViz.rX, melonViz.rY, 0, 0, 2 * Math.PI);
         ctx.stroke();
 
         const method = document.getElementById('method').value;
         ctx.beginPath(); ctx.strokeStyle = '#ff5252'; ctx.lineWidth = 3;
-        if (method === 'card') { ctx.rect(markerViz.x - markerViz.r * 1.5, markerViz.y - markerViz.r, markerViz.r * 3, markerViz.r * 2); }
-        else { ctx.arc(markerViz.x, markerViz.y, markerViz.r, 0, 2 * Math.PI); }
+        if (method === 'card') {
+            if (cardOrientation === 'horizontal') {
+                ctx.rect(markerViz.x - markerViz.r * 1.5, markerViz.y - markerViz.r, markerViz.r * 3, markerViz.r * 2);
+            } else {
+                ctx.rect(markerViz.x - markerViz.r, markerViz.y - markerViz.r * 1.5, markerViz.r * 2, markerViz.r * 3);
+            }
+        } else {
+            ctx.arc(markerViz.x, markerViz.y, markerViz.r, 0, 2 * Math.PI);
+        }
         ctx.stroke();
 
         const markerRealSize = markerSizes[method];
         let pxPerCm = (method === 'card') ? (markerViz.r * 3) / markerRealSize : (markerViz.r * 2) / markerRealSize;
-        currentCircumference = ((melonViz.rX * 2) / pxPerCm) * Math.PI;
+        
+        // Математически точный средний экватор с учетом деформации круга/овала
+        const averageDiameter = Math.sqrt(melonViz.rX * melonViz.rY) * 2;
+        currentCircumference = (averageDiameter / pxPerCm) * Math.PI;
         updateWeightHint();
     }
 
@@ -179,7 +226,7 @@
 
     function analyzeWatermelon() {
         const method = document.getElementById('method').value; const variety = document.getElementById('variety').value; const weight = parseFloat(document.getElementById('weight').value); const resultDiv = document.getElementById('result');
-        if (method !== 'tape' && !imgObj) { alert('Пожалуйста, сначала загрузите фото арбуза!'); return; }
+        if (method !== 'tape' && currentCircumference === 0) { alert('Пожалуйста, сначала загрузите фото арбуза!'); return; }
         if (!currentCircumference || !weight) { alert('Заполните вес и габариты!'); return; }
         document.getElementById('weight-hint-text').style.display = 'none';
         const circ = currentCircumference; const radius = circ / (2 * Math.PI); let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
@@ -189,7 +236,7 @@
 
         if (density > cheatLimit) {
             resultDiv.className = 'cheat';
-            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br><div style="text-align: left; margin-top: 5px; font-size: 14px;">Вес <b>${weight} кг</b> невозможен для обхвата в <b>${circ.toFixed(1)} см</b>.<br><br>• Максимум: <b>${((1.01 * finalVolume) / kBark).toFixed(2)} кг</b>.<br>• Вес спелого: около <b>${((0.94 * finalVolume) / kBark).toFixed(2)} кг</b>.<br><br><span style="color: #c62828; font-weight: bold;">⚠️ Похоже, весы продавца завышают показания!</span></div>`;
+            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br><div style="text-align: left; margin-top: 5px; font-size: 14px;">Вес <b>${weight} кг</b> невозможен для обхвата в <b>${circ.toFixed(1)} см</b>.<br><br>• Максимум: <b>${((1.01 * finalVolume) / kBark).toFixed(2)} кг</b>.<br>• Вес спелого: около <b>${((0.94 * finalVolume) / kBark).toFixed(2)} кг</b>.</div>`;
             return;
         }
 
