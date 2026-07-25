@@ -25,7 +25,6 @@
         .score-badge { display: inline-block; font-size: 28px; font-weight: bold; margin-bottom: 10px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
         .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
         .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
-        
         #photo-section { display: none; margin-top: 15px; background: #fafafa; border: 2px dashed #bdc3c7; padding: 15px; border-radius: 10px; text-align: center; }
         .canvas-container { position: relative; width: 100%; margin-top: 15px; display: none; touch-action: none; background: #000; border-radius: 8px; overflow: hidden; }
         canvas { display: block; width: 100%; height: auto; }
@@ -72,7 +71,41 @@
 
     <div id="photo-section">
         <label style="margin-top:0;">📷 Загрузите фото арбуза с маркером</label>
-            const markerSizes = { coin1: 2.05, coin5: 2.50, coin10: 2.20, card: 8.56 };
+        <input type="file" id="file-input" accept="image/*" onchange="handlePhoto(event)">
+        
+        <div class="canvas-container" id="canvas-container">
+            <canvas id="scanner-canvas"></canvas>
+            <div class="controls-hint">👆 Тащите круги пальцем. Выберите режим и настраивайте ширину/высоту контура под реальный объект на фото.</div>
+            <div class="control-group">
+                <button class="control-btn active" id="mode-melon" onclick="setEditMode('melon')">🟢 Визир Арбуза</button>
+                <button class="control-btn" id="mode-marker" onclick="setEditMode('marker')">🔴 Визир Маркера</button>
+            </div>
+            <div class="control-group">
+                <div class="control-subgroup">
+                    <button class="sub-btn" onclick="adjustSize('width', 3)">↔️ Ширина ➕</button>
+                    <button class="sub-btn" onclick="adjustSize('width', -3)">↔️ Ширина ➖</button>
+                </div>
+                <div class="control-subgroup" id="height-controls">
+                    <button class="sub-btn" onclick="adjustSize('height', 3)">↕️ Высота ➕</button>
+                    <button class="sub-btn" onclick="adjustSize('height', -3)">↕️ Высота ➖</button>
+                </div>
+            </div>
+            <button class="control-btn" id="card-orient-btn" style="margin-top:8px; background:#37474f; color:white; display:none;" onclick="toggleCardOrientation()">🔄 Развернуть карту</button>
+        </div>
+    </div>
+
+    <label for="weight" style="margin-top:15px;">Точный вес арбуза (кг)</label>
+    <div class="input-wrapper">
+        <span class="input-icon">⚖️</span>
+        <input type="number" id="weight" class="with-icon" placeholder="Например: 8.63" step="0.01">
+    </div>
+    <div id="weight-hint-text" class="weight-hint"></div>
+
+    <button onclick="analyzeWatermelon()">Проверить спелость</button>
+    <div id="result"></div>
+</div>
+<script>
+    const markerSizes = { coin1: 2.05, coin5: 2.50, coin10: 2.20, card: 8.56 };
     let currentCircumference = 0;
     let editMode = 'melon';
     let cardOrientation = 'horizontal';
@@ -116,74 +149,6 @@
         editMode = mode;
         document.getElementById('mode-melon').classList.toggle('active', mode === 'melon');
         document.getElementById('mode-marker').classList.toggle('active', mode === 'marker');
-        drawScanner();
-    }
-    
-    function adjustSize(axis, amount) {
-        if (editMode === 'melon') {
-            if (axis === 'width') melonViz.rX += amount;
-            if (axis === 'height') melonViz.rY += amount;
-            if (melonViz.rX < 15) melonViz.rX = 15;
-            if (melonViz.rY < 15) melonViz.rY = 15;
-        } else {
-            markerViz.r += amount;
-            if (markerViz.r < 5) markerViz.r = 5;
-        }
-        drawScanner();
-    }
-
-    function initTouchEvents() {
-        let isDragging = false;
-        const getCoords = (e) => {
-            const rect = canvas.getBoundingClientRect();
-            // ИСПРАВЛЕНО: Теперь координаты на тачскрине считываются строго через первый элемент массива [0]
-            const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
-            const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : e.clientY;
-            return {
-                x: ((clientX - rect.left) / rect.width) * canvas.width,
-                y: ((clientY - rect.top) / rect.height) * canvas.height
-            };
-        };
-        
-        canvas.onmousedown = () => { isDragging = true; }; 
-        canvas.onmouseup = () => { isDragging = false; };
-        canvas.ontouchstart = () => { isDragging = true; }; 
-        canvas.ontouchend = () => { isDragging = false; };
-        
-        const moveHandler = (e) => {
-            if (!isDragging) return;
-            if (e.touches) e.preventDefault(); // Полная блокировка смещения экрана при свайпах
-            const coords = getCoords(e);
-            if (isNaN(coords.x) || isNaN(coords.y)) return; // Дополнительный предохранитель от пропадания
-            
-            if (editMode === 'melon') { melonViz.x = coords.x; melonViz.y = coords.y; } 
-            else { markerViz.x = coords.x; markerViz.y = coords.y; } 
-            drawScanner();
-        };
-        canvas.onmousemove = moveHandler; 
-        canvas.ontouchmove = moveHandler;
-    }
-    function handlePhoto(e) {
-        const files = e.target.files; if (!files || files.length === 0) return;
-        imgObj = new Image();
-        imgObj.onload = function() {
-            canvas = document.getElementById('scanner-canvas'); ctx = canvas.getContext('2d');
-            canvas.width = 400; canvas.height = (imgObj.height / imgObj.width) * 400;
-            document.getElementById('canvas-container').style.display = 'block';
-            const method = document.getElementById('method').value;
-            document.getElementById('card-orient-btn').style.display = (method === 'card') ? 'block' : 'none';
-            melonViz.x = canvas.width / 2; melonViz.y = canvas.height / 2;
-            melonViz.rX = 85; melonViz.rY = 85;
-            markerViz.x = canvas.width / 2; markerViz.y = canvas.height / 2 - 50;
-            initTouchEvents(); drawScanner();
-        }
-        imgObj.src = URL.createObjectURL(files[0]);
-    }
-
-    function setEditMode(mode) {
-        editMode = mode;
-        document.getElementById('mode-melon').classList.toggle('active', mode === 'melon');
-        document.getElementById('mode-marker').classList.toggle('active', mode === 'marker');
         document.getElementById('height-controls').style.visibility = (mode === 'melon') ? 'visible' : 'hidden';
         drawScanner();
     }
@@ -205,14 +170,16 @@
         let isDragging = false;
         const getCoords = (e) => {
             const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches.clientX : e.clientX;
-            const clientY = e.touches ? e.touches.clientY : e.clientY;
+            const touch = (e.touches && e.touches.length > 0) ? e.touches[0] : null;
+            const clientX = touch ? touch.clientX : e.clientX;
+            const clientY = touch ? touch.clientY : e.clientY;
             return { x: ((clientX - rect.left) / rect.width) * canvas.width, y: ((clientY - rect.top) / rect.height) * canvas.height };
         };
         canvas.onmousedown = () => { isDragging = true; }; canvas.onmouseup = () => { isDragging = false; };
         canvas.ontouchstart = () => { isDragging = true; }; canvas.ontouchend = () => { isDragging = false; };
         const moveHandler = (e) => {
             if (!isDragging) return; if (e.touches) e.preventDefault(); const coords = getCoords(e);
+            if (isNaN(coords.x) || isNaN(coords.y)) return;
             if (editMode === 'melon') { melonViz.x = coords.x; melonViz.y = coords.y; } else { markerViz.x = coords.x; markerViz.y = coords.y; } drawScanner();
         };
         canvas.onmousemove = moveHandler; canvas.ontouchmove = moveHandler;
@@ -220,7 +187,6 @@
     function drawScanner() {
         if (!imgObj || !canvas) return; ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
         
-        // Рисуем кольцо арбуза с раздельными ручными радиусами по ширине и высоте
         ctx.beginPath(); ctx.strokeStyle = '#4caf50'; ctx.lineWidth = 3;
         ctx.ellipse(melonViz.x, melonViz.y, melonViz.rX, melonViz.rY, 0, 0, 2 * Math.PI);
         ctx.stroke();
@@ -241,7 +207,6 @@
         const markerRealSize = markerSizes[method];
         let pxPerCm = (method === 'card') ? (markerViz.r * 3) / markerRealSize : (markerViz.r * 2) / markerRealSize;
         
-        // Математически точный средний экватор с учетом деформации круга/овала
         const averageDiameter = Math.sqrt(melonViz.rX * melonViz.rY) * 2;
         currentCircumference = (averageDiameter / pxPerCm) * Math.PI;
         updateWeightHint();
