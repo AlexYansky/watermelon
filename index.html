@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Спелый арбуз</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f4f1; color: #2c3e50; padding: 15px; margin: 0; }
@@ -10,27 +10,34 @@
         h1 { text-align: center; color: #1b5e20; font-size: 24px; margin-top: 0; margin-bottom: 5px; }
         .subtitle { text-align: center; color: #7f8c8d; font-size: 13px; margin-bottom: 20px; }
         label { display: block; font-weight: bold; margin: 15px 0 6px; font-size: 14px; color: #34495e; }
-        select, input { width: 100%; padding: 14px 14px 14px 42px; border: 2px solid #bdc3c7; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
+        select, input { width: 100%; padding: 14px; border: 2px solid #bdc3c7; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; background: #fff; }
         select { padding-left: 15px; }
         .input-wrapper { position: relative; width: 100%; }
         .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #7f8c8d; pointer-events: none; }
+        .with-icon { padding-left: 42px; }
         button { width: 100%; background: #4caf50; color: white; border: none; padding: 16px; border-radius: 10px; font-size: 17px; font-weight: bold; margin-top: 25px; cursor: pointer; }
         #result { margin-top: 25px; padding: 18px; border-radius: 12px; display: none; text-align: center; font-size: 15px; line-height: 1.5; }
         .ripe { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
         .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
         .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
-        .cheat { background: #eceff1; color: #37474f; border: 2px solid #b0bec5; animation: pulse 1.5s infinite; }
+        .cheat { background: #eceff1; color: #37474f; border: 2px solid #b0bec5; }
         .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
         .score-badge { display: inline-block; font-size: 28px; font-weight: bold; margin-bottom: 10px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
         .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
         .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
-        @keyframes pulse { 0% { border-color: #b0bec5; } 50% { border-color: #ff5252; } 100% { border-color: #b0bec5; } }
+        #photo-section { display: none; margin-top: 15px; background: #fafafa; border: 2px dashed #bdc3c7; padding: 15px; border-radius: 10px; text-align: center; }
+        .canvas-container { position: relative; width: 100%; margin-top: 15px; display: none; touch-action: none; background: #000; border-radius: 8px; overflow: hidden; }
+        canvas { display: block; width: 100%; height: auto; }
+        .controls-hint { font-size: 12px; color: #666; margin-top: 8px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #e0e0e0; }
+        .control-group { display: flex; gap: 8px; margin-top: 8px; }
+        .control-btn { flex: 1; padding: 10px; font-size: 13px; background: #e0e0e0; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .control-btn.active { background: #4caf50; color: white; }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>🍉 Спелый арбуз</h1>
-    <div class="subtitle">Расчет спелости и проверка веса плода</div>
+    <div class="subtitle">Расчет спелости и лазерный экспресс-обвес</div>
     
     <label for="variety">Тип / Сорт арбуза</label>
     <select id="variety" onchange="updateWeightHint()">
@@ -39,20 +46,49 @@
         <option value="yellow">Желтый / Без семечек</option>
     </select>
     
+    <label for="method">Метод измерения габаритов</label>
+    <select id="method" onchange="toggleMethod()">
+        <option value="tape">Измерение сантиметровой лентой</option>
+        <option value="coin1">Автомасштаб: по 1 рублевой монете</option>
+        <option value="coin5">Автомасштаб: по 5 рублевой монете</option>
+        <option value="coin10">Автомасштаб: по 10 рублевой монете</option>
+        <option value="card">Автомасштаб: по plastic карте</option>
+    </select>
+
     <div class="hint-box">
-        💡 <b>Правило замера:</b> Обхватите арбуз лентой строго <b>поперек (по экватору)</b>, как если бы плод стоял хвостиком вверх.
+        💡 <b>Правило замера:</b> Лента или фото должны фиксировать арбуз строго <b>поперек (по экватору)</b>. Маркер (монету/карту) положите по центру арбуза.
     </div>
 
-    <label for="circ">Длина окружности (см)</label>
-    <div class="input-wrapper">
-        <span class="input-icon">📏</span>
-        <input type="number" id="circ" placeholder="Введите обхват поперек" oninput="updateWeightHint()">
+    <div id="tape-section">
+        <label for="circ">Длина окружности (см)</label>
+        <div class="input-wrapper">
+            <span class="input-icon">📏</span>
+            <input type="number" id="circ" class="with-icon" placeholder="Введите обхват поперек" oninput="updateWeightHint()">
+        </div>
     </div>
 
-    <label for="weight">Точный вес арбуза (кг)</label>
+    <div id="photo-section">
+        <label style="margin-top:0;">📷 Загрузите фото арбуза с маркером</label>
+        <input type="file" id="file-input" accept="image/*" onchange="handlePhoto(event)">
+        
+        <div class="canvas-container" id="canvas-container">
+            <canvas id="scanner-canvas"></canvas>
+            <div class="controls-hint">👆 Выберите режим и перетаскивайте круги пальцем по экрану. Нажимайте ➕/➖ для изменения их диаметров.</div>
+            <div class="control-group">
+                <button class="control-btn active" id="mode-melon" onclick="setEditMode('melon')">🟢 Визир Арбуза</button>
+                <button class="control-btn" id="mode-marker" onclick="setEditMode('marker')">🔴 Визир Маркера</button>
+            </div>
+            <div class="control-group">
+                <button class="control-btn" onclick="adjustSize(-3)">➖ Меньше</button>
+                <button class="control-btn" onclick="adjustSize(3)">➕ Больше</button>
+            </div>
+        </div>
+    </div>
+
+    <label for="weight" style="margin-top:15px;">Точный вес арбуза (кг)</label>
     <div class="input-wrapper">
         <span class="input-icon">⚖️</span>
-        <input type="number" id="weight" placeholder="Например: 8.63" step="0.01">
+        <input type="number" id="weight" class="with-icon" placeholder="Например: 8.63" step="0.01">
     </div>
     <div id="weight-hint-text" class="weight-hint"></div>
 
@@ -60,89 +96,129 @@
     <div id="result"></div>
 </div>
 <script>
-    function updateWeightHint() {
-        const variety = document.getElementById('variety').value;
-        const circ = parseFloat(document.getElementById('circ').value);
-        const hintDiv = document.getElementById('weight-hint-text');
+    const markerSizes = { coin1: 2.05, coin5: 2.50, coin10: 2.20, card: 8.56 };
+    let currentCircumference = 0;
+    let editMode = 'melon';
+    let melonViz = { x: 200, y: 200, rX: 90 };
+    let markerViz = { x: 200, y: 120, r: 18 };
+    let imgObj = null;
+    let canvas, ctx;
 
-        // Скрываем итоговый результат при изменении вводных данных
+    function toggleMethod() {
+        const method = document.getElementById('method').value;
+        const tapeSec = document.getElementById('tape-section');
+        const photoSec = document.getElementById('photo-section');
         document.getElementById('result').style.display = 'none';
+        if (method === 'tape') { tapeSec.style.display = 'block'; photoSec.style.display = 'none'; updateWeightHint(); }
+        else { tapeSec.style.display = 'none'; photoSec.style.display = 'block'; if (imgObj) drawScanner(); else document.getElementById('weight-hint-text').style.display = 'none'; }
+    }
 
-        if (!circ || circ < 20) {
-            hintDiv.style.display = 'none';
-            return;
+    function handlePhoto(e) {
+        const file = e.target.files; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            imgObj = new Image();
+            imgObj.onload = function() {
+                canvas = document.getElementById('scanner-canvas'); ctx = canvas.getContext('2d');
+                canvas.width = 400; canvas.height = (imgObj.height / imgObj.width) * 400;
+                document.getElementById('canvas-container').style.display = 'block';
+                melonViz.x = canvas.width / 2; melonViz.y = canvas.height / 2;
+                markerViz.x = canvas.width / 2; markerViz.y = canvas.height / 2 - 60;
+                initTouchEvents(); drawScanner();
+            }
+            imgObj.src = event.target.result;
         }
+        reader.readAsDataURL(file);
+    }
 
+    function setEditMode(mode) { editMode = mode; document.getElementById('mode-melon').classList.toggle('active', mode === 'melon'); document.getElementById('mode-marker').classList.toggle('active', mode === 'marker'); drawScanner(); }
+    function adjustSize(amount) { if (editMode === 'melon') { melonViz.rX += amount; if (melonViz.rX < 15) melonViz.rX = 15; } else { markerViz.r += amount; if (markerViz.r < 5) markerViz.r = 5; } drawScanner(); }
+
+    function initTouchEvents() {
+        let isDragging = false;
+        const getCoords = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches.clientX : e.clientX;
+            const clientY = e.touches ? e.touches.clientY : e.clientY;
+            return { x: ((clientX - rect.left) / rect.width) * canvas.width, y: ((clientY - rect.top) / rect.height) * canvas.height };
+        };
+        canvas.onmousedown = () => { isDragging = true; }; canvas.onmouseup = () => { isDragging = false; };
+        canvas.ontouchstart = () => { isDragging = true; }; canvas.ontouchend = () => { isDragging = false; };
+        canvas.onmousemove = (e) => { if (!isDragging) return; const coords = getCoords(e); if (editMode === 'melon') { melonViz.x = coords.x; melonViz.y = coords.y; } else { markerViz.x = coords.x; markerViz.y = coords.y; } drawScanner(); };
+        canvas.ontouchmove = (e) => { if (!isDragging) return; e.preventDefault(); const coords = getCoords(e); if (editMode === 'melon') { melonViz.x = coords.x; melonViz.y = coords.y; } else { markerViz.x = coords.x; markerViz.y = coords.y; } drawScanner(); };
+    }
+
+    function drawScanner() {
+        if (!imgObj) return; ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
+        const variety = document.getElementById('variety').value;
+        ctx.beginPath(); ctx.strokeStyle = '#4caf50'; ctx.lineWidth = 3;
+        if (variety === 'oval') { ctx.ellipse(melonViz.x, melonViz.y, melonViz.rX, melonViz.rX * 1.25, 0, 0, 2 * Math.PI); }
+        else { ctx.arc(melonViz.x, melonViz.y, melonViz.rX, 0, 2 * Math.PI); }
+        ctx.stroke();
+
+        const method = document.getElementById('method').value;
+        ctx.beginPath(); ctx.strokeStyle = '#ff5252'; ctx.lineWidth = 3;
+        if (method === 'card') { ctx.rect(markerViz.x - markerViz.r * 1.5, markerViz.y - markerViz.r, markerViz.r * 3, markerViz.r * 2); }
+        else { ctx.arc(markerViz.x, markerViz.y, markerViz.r, 0, 2 * Math.PI); }
+        ctx.stroke();
+
+        const markerRealSize = markerSizes[method];
+        let pxPerCm = (method === 'card') ? (markerViz.r * 3) / markerRealSize : (markerViz.r * 2) / markerRealSize;
+        currentCircumference = ((melonViz.rX * 2) / pxPerCm) * Math.PI;
+        updateWeightHint();
+    }
+
+    function updateWeightHint() {
+        const method = document.getElementById('method').value;
+        const variety = document.getElementById('variety').value;
+        const hintDiv = document.getElementById('weight-hint-text');
+        let circ = (method === 'tape') ? parseFloat(document.getElementById('circ').value) : currentCircumference;
+        if (method === 'tape') currentCircumference = circ;
+        if (!circ || circ < 20) { hintDiv.style.display = 'none'; return; }
         const radius = circ / (2 * Math.PI);
         let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
-        let kForm = 1.0; let kBark = 1.0;
-        if (variety === 'oval') { kForm = 1.28; kBark = 0.98; }
-        else if (variety === 'yellow') { kBark = 0.92; }
-        
+        let kForm = (variety === 'oval') ? 1.28 : 1.0;
+        let kBark = (variety === 'oval') ? 0.98 : (variety === 'yellow' ? 0.92 : 1.0);
         const finalVolume = baseVolume * kForm;
-        const minWeight = (0.90 * finalVolume) / kBark;
-        const maxWeight = (0.98 * finalVolume) / kBark;
-
         hintDiv.style.display = 'block';
-        hintDiv.innerHTML = `📋 <b>Оптимальный вес для ${circ} см:</b> от <b>${minWeight.toFixed(2)}</b> до <b>${maxWeight.toFixed(2)} кг</b>`;
+        hintDiv.innerHTML = `📋 <b>Оптимальный вес для ${circ.toFixed(1)} см:</b> от <b>${((0.90 * finalVolume) / kBark).toFixed(2)}</b> до <b>${((0.98 * finalVolume) / kBark).toFixed(2)} кг</b>`;
     }
 
     function analyzeWatermelon() {
+        const method = document.getElementById('method').value;
         const variety = document.getElementById('variety').value;
-        const circ = parseFloat(document.getElementById('circ').value);
         const weight = parseFloat(document.getElementById('weight').value);
         const resultDiv = document.getElementById('result');
-        const hintDiv = document.getElementById('weight-hint-text');
-        
-        if (!circ || !weight) { alert('Заполните поля!'); return; }
-        
-        // Скрываем предварительную подсказку веса после клика на расчет
-        hintDiv.style.display = 'none';
-
-        const radius = circ / (2 * Math.PI);
+        if (method !== 'tape' && !imgObj) { alert('Загрузите фото!'); return; }
+        if (!currentCircumference || !weight) { alert('Заполните вес и габариты!'); return; }
+        const circ = currentCircumference; const radius = circ / (2 * Math.PI);
         let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
         let kForm = 1.0; let kBark = 1.0; let cheatLimit = 1.15;
-
         if (variety === 'oval') { kForm = 1.28; kBark = 0.98; cheatLimit = 1.05; }
         else if (variety === 'yellow') { kBark = 0.92; cheatLimit = 1.10; }
-        
-        const finalVolume = baseVolume * kForm;
-        const density = (weight * kBark) / finalVolume;
-        
+        const finalVolume = baseVolume * kForm; const density = (weight * kBark) / finalVolume;
         resultDiv.style.display = 'block';
 
         if (density > cheatLimit) {
-            const maxFairWeight = (1.01 * finalVolume) / kBark;
-            const idealFairWeight = (0.94 * finalVolume) / kBark;
             resultDiv.className = 'cheat';
-            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br><div style="text-align: left; margin-top: 5px; font-size: 14px;">Вес <b>${weight} кг</b> биологически невозможен для обхвата в <b>${circ} см</b>.<br><br>• Даже самый зеленый арбуз этого типа не может весить более <b>${maxFairWeight.toFixed(2)} кг</b>.<br>• Если этот арбуз идеально спелый, его честный вес составляет около <b>${idealFairWeight.toFixed(2)} кг</b>.<br><br><span style="color: #c62828; font-weight: bold;">⚠️ Похоже, весы продавца завышают показания. Перепроверьте вес!</span></div>`;
+            resultDiv.innerHTML = `<b>🛑 ПОДОЗРЕНИЕ НА ОБВЕС!</b><br><div style="text-align: left; margin-top: 5px; font-size: 14px;">Вес <b>${weight} кг</b> биологически невозможен.<br>• Максимум: <b>${((1.01 * finalVolume) / kBark).toFixed(2)} кг</b>.<br>• Вес спелого: около <b>${((0.94 * finalVolume) / kBark).toFixed(2)} кг</b>.</div>`;
             return;
         }
 
-        let score = 0;
-        if (density >= 0.93 && density <= 0.95) { score = 10; } 
-        else if (density > 0.95 && density <= 0.96) { score = 9; } 
-        else if (density >= 0.91 && density < 0.93) { score = 8; } 
-        else if (density > 0.96 && density <= 0.97) { score = 7; } 
-        else if (density >= 0.88 && density < 0.91) { score = 6; } 
-        else if (density > 0.97 && density <= 0.98) { score = 5; } 
-        else if (density >= 0.81 && density < 0.88) { score = 5; } 
-        else if (density >= 0.76 && density < 0.81) { score = 4; } 
-        else if (density > 0.98 && density <= 1.01) { score = 3; } 
-        else { score = 2; }
+        let score = 2;
+        if (density >= 0.93 && density <= 0.95) score = 10;
+        else if (density > 0.95 && density <= 0.96) score = 9;
+        else if (density >= 0.91 && density < 0.93) score = 8;
+        else if (density > 0.96 && density <= 0.97) score = 7;
+        else if (density >= 0.88 && density < 0.91) score = 6;
+        else if (density > 0.97 && density <= 0.98) score = 5;
+        else if (density >= 0.81 && density < 0.88) score = 5;
+        else if (density >= 0.76 && density < 0.81) score = 4;
 
         const scoreGuide = `<div class="score-info">💡 Референс: Арбузы с оценкой 7/10 и выше считаются оптимальными для покупки.</div>`;
-
-        if (density > 0.98) {
-            resultDiv.className = 'unripe';
-            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>❌ НЕДОЗРЕЛЫЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз слишком тяжелый для своего объема. Внутри сплошная плотная "водяная" структура. Мякоть будет бледной, несладкой и травянистой.</small></div>${scoreGuide}`;
-        } else if (density >= 0.90 && density <= 0.98) {
-            resultDiv.className = 'ripe';
-            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>🎉 ИДЕАЛЬНО СПЕЛЫЙ! (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Эталонный баланс физических свойств. Мякоть плотная, хрустящая, очень сочная и равномерно сладкая. Самый надежный выбор.</small></div>${scoreGuide}`;
-        } else {
-            resultDiv.className = 'overripe';
-            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>⚠️ ВАТНЫЙ / СВЕРХСЛАДКИЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз критически легкий. Мякоть имеет <b>повышенную сахаристость («крупчатая»)</b>, но ее структура уже <b>ватно-рыхлая</b>, возможно образование внутренних пустот. Корка сильно натянута — плод может сам треснуть при первом надрезе ножом.</small></div>${scoreGuide}`;
-        }
+        if (density > 0.98) { resultDiv.className = 'unripe'; resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>❌ НЕДОЗРЕЛЫЙ (${density.toFixed(2)})</b><br><small>Мякоть плотная и травянистая.</small>${scoreGuide}`; }
+        else if (density >= 0.90 && density <= 0.98) { resultDiv.className = 'ripe'; resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>🎉 ИДЕАЛЬНО СПЕЛЫЙ! (${density.toFixed(2)})</b><br><small>Мякоть плотная, хрустящая и сладкая.</small>${scoreGuide}`; }
+        else { resultDiv.className = 'overripe'; resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>⚠️ ВАТНЫЙ / СВЕРХСЛАДКИЙ (${density.toFixed(2)})</b><br><small>Мякоть крупчатая, но рыхлая.</small>${scoreGuide}`; }
     }
 </script>
 </body>
