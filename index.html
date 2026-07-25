@@ -5,33 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Спелый арбуз</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f0f4f1; color: #2c3e50; padding: 15px; margin: 0; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 420px; margin: 20px auto; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f4f1; color: #2c3e50; padding: 15px; margin: 0; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); max-width: 420px; margin: 10px auto; box-sizing: border-box; }
         h1 { text-align: center; color: #1b5e20; font-size: 24px; margin-top: 0; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #7f8c8d; font-size: 13px; margin-bottom: 25px; }
+        .subtitle { text-align: center; color: #7f8c8d; font-size: 13px; margin-bottom: 20px; }
         label { display: block; font-weight: bold; margin: 15px 0 6px; font-size: 14px; color: #34495e; }
-        select, input { width: 100%; padding: 14px; border: 2px solid #bdc3c7; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
+        select, input { width: 100%; padding: 14px 14px 14px 42px; border: 2px solid #bdc3c7; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
+        select { padding-left: 15px; }
+        .input-wrapper { position: relative; width: 100%; }
+        .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #7f8c8d; pointer-events: none; }
         button { width: 100%; background: #4caf50; color: white; border: none; padding: 16px; border-radius: 10px; font-size: 17px; font-weight: bold; margin-top: 25px; cursor: pointer; }
         #result { margin-top: 25px; padding: 18px; border-radius: 12px; display: none; text-align: center; font-size: 16px; line-height: 1.5; }
         .ripe { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
         .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
         .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
+        .diagram-container { background: #f9fbf9; border: 1px dashed #a5d6a7; border-radius: 10px; padding: 12px; margin: 15px 0; text-align: center; font-size: 13px; }
+        .scheme { font-family: monospace; font-size: 16px; line-height: 1.3; color: #2e7d32; margin: 8px 0; font-weight: bold; white-space: pre-line; }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>🍉 Спелый арбуз</h1>
-    <div class="subtitle">Расчет спелости по физическим параметрам</div>
+    <div class="subtitle">Расчет спелости по физическим параметрам плода</div>
+    
     <label for="variety">Тип / Сорт арбуза</label>
     <select id="variety">
         <option value="classic">Обычный круглый полосатый</option>
-        <option value="oval">Вытянутый / Овальный</option>
+        <option value="oval">Вытянутый / Овальный (Мраморный, Чарльстон)</option>
         <option value="yellow">Желтый / Без семечек</option>
     </select>
+    
+    <div class="diagram-container">
+        <b>📐 Как правильно мерить окружность:</b>
+        <div class="scheme">❌ НЕ вдоль: ( ═══ )<br>✅ ПОПЕРЕК (экватор): (  |  )</div>
+        Обхватите арбуз лентой как ремнем вокруг самой «толстой» центральной части плода.
+    </div>
+
     <label for="circ">Длина окружности (см)</label>
-    <input type="number" id="circ" placeholder="Замерьте лентой по экватору">
-    <label for="weight">Точный вес (кг)</label>
-    <input type="number" id="weight" placeholder="Значение с весов">
+    <div class="input-wrapper">
+        <span class="input-icon">📏</span>
+        <input type="number" id="circ" placeholder="Замерьте строго ПОПЕРЕК плода">
+    </div>
+
+    <label for="weight">Точный вес арбуза (кг)</label>
+    <div class="input-wrapper">
+        <span class="input-icon">⚖️</span>
+        <input type="number" id="weight" placeholder="Например: 8.63" step="0.01">
+    </div>
+
     <button onclick="analyzeWatermelon()">Проверить спелость</button>
     <div id="result"></div>
 </div>
@@ -51,13 +72,13 @@
         resultDiv.style.display = 'block';
         if (density > 0.98) {
             resultDiv.className = 'unripe';
-            resultDiv.innerHTML = `<b>❌ НЕДОЗРЕЛЫЙ АРБУЗ</b><br>Плотность: ${density.toFixed(2)}<br><small>Мякоть плотная и несладкая.</small>`;
+            resultDiv.innerHTML = `<b>❌ НЕДОЗРЕЛЫЙ АРБУЗ</b><br>Плотность: ${density.toFixed(2)}<br><small>Мякоть плотная, водянистая и несладкая.</small>`;
         } else if (density >= 0.90 && density <= 0.98) {
             resultDiv.className = 'ripe';
-            resultDiv.innerHTML = `<b>🎉 ИДЕАЛЬНО СПЕЛЫЙ!</b><br>Плотность: ${density.toFixed(2)}<br><small>Мякоть сахаристая и спелая!</small>`;
+            resultDiv.innerHTML = `<b>🎉 ИДЕАЛЬНО СПЕЛЫЙ!</b><br>Плотность: ${density.toFixed(2)}<br><small>Мякоть сахаристая, сочная и упругая!</small>`;
         } else {
             resultDiv.className = 'overripe';
-            resultDiv.innerHTML = `<b>⚠️ ПЕРЕСПЕЛЫЙ / ВАТНЫЙ</b><br>Плотность: ${density.toFixed(2)}<br><small>Внутри могут быть пустоты.</small>`;
+            resultDiv.innerHTML = `<b>⚠️ ПЕРЕСПЕЛЫЙ / ВАТНЫЙ</b><br>Плотность: ${density.toFixed(2)}<br><small>Внутри высокая пористость, сухость или пустоты.</small>`;
         }
     }
 </script>
