@@ -19,8 +19,9 @@
         .ripe { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
         .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
         .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
-        .diagram-container { background: #f9fbf9; border: 1px dashed #a5d6a7; border-radius: 10px; padding: 12px; margin: 15px 0; text-align: center; font-size: 13px; }
-        .scheme { font-family: monospace; font-size: 16px; line-height: 1.3; color: #2e7d32; margin: 8px 0; font-weight: bold; white-space: pre-line; }
+        
+        /* Компактный и легкий блок подсказки */
+        .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
     </style>
 </head>
 <body>
@@ -35,16 +36,15 @@
         <option value="yellow">Желтый / Без семечек</option>
     </select>
     
-    <div class="diagram-container">
-        <b>📐 Как правильно мерить окружность:</b>
-        <div class="scheme">❌ НЕ вдоль: ( ═══ )<br>✅ ПОПЕРЕК (экватор): (  |  )</div>
-        Обхватите арбуз лентой как ремнем вокруг самой «толстой» центральной части плода.
+    <!-- Ваша новая лаконичная подсказка -->
+    <div class="hint-box">
+        💡 <b>Правило замера:</b> Обхватите арбуз лентой строго <b>поперек (по экватору)</b>, как если бы плод стоял хвостиком вверх.
     </div>
 
     <label for="circ">Длина окружности (см)</label>
     <div class="input-wrapper">
         <span class="input-icon">📏</span>
-        <input type="number" id="circ" placeholder="Замерьте строго ПОПЕРЕК плода">
+        <input type="number" id="circ" placeholder="Введите обхват поперек">
     </div>
 
     <label for="weight">Точный вес арбуза (кг)</label>
