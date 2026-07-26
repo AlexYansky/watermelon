@@ -16,61 +16,54 @@
         .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #7f8c8d; pointer-events: none; }
         button { width: 100%; background: #4caf50; color: white; border: none; padding: 16px; border-radius: 10px; font-size: 17px; font-weight: bold; margin-top: 25px; cursor: pointer; }
         #result { margin-top: 25px; padding: 18px; border-radius: 12px; display: none; text-align: center; font-size: 15px; line-height: 1.5; }
-        .ripe { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
-        .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
-        .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
+        .ripe-green { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
+        .ripe-gold { background: #fff8e1; color: #e65100; border: 2px solid #ffb74d; }
+        .unripe-red { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
         .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
-        .accuracy-box { background: #fbfbfc; border-left: 4px solid #95a5a6; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 12px; line-height: 1.4; color: #7f8c8d; }
-        .score-badge { display: inline-block; font-size: 28px; font-weight: bold; margin-bottom: 10px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
-        .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
-        .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
-        
-        /* Стили подвала и стихотворения */
         .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #7f8c8d; border-top: 1px dashed #bdc3c7; padding-top: 15px; }
-        .creator-name { font-weight: bold; color: #2c3e50; margin-bottom: 10px; font-size: 13px; }
         .poem-box { font-style: italic; color: #556b2f; line-height: 1.6; background: #f9fbf9; padding: 12px; border-radius: 8px; border-left: 3px solid #81c784; display: inline-block; text-align: left; }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>🍉 Спелый арбуз</h1>
-    <div class="subtitle">Расчет спелости по точным физическим параметрам плода</div>
+    <div class="subtitle">3D-расчет спелости по двум осям измерения плода</div>
     
     <label for="variety">Тип / Сорт арбуза</label>
     <select id="variety" onchange="updateWeightHint()">
-        <option value="oval">Вытянутый / Овальный</option>
+        <option value="oval">Вытянутый / Овальный (Толстокорый)</option>
         <option value="classic">Обычный круглый полосатый</option>
         <option value="yellow">Желтый / Без семечек</option>
     </select>
     
     <div class="hint-box">
-        💡 <b>Правило замера:</b> Обхватите арбуз лентой строго <b>поперек (по экватору)</b>, как если бы плод стоял хвостиком вверх.
+        💡 <b>Методика 3D-замера:</b> Вбейте обхват строго поперек (экватор) и продольный обхват (от хвостика через попку кругом назад к хвостику).
     </div>
 
-    <label for="circ">Длина окружности (см)</label>
+    <label for="circ">1. Обхват поперек по экватору (см)</label>
     <div class="input-wrapper">
         <span class="input-icon">📏</span>
-        <input type="number" id="circ" placeholder="Введите обхват поперек" oninput="updateWeightHint()">
+        <input type="number" id="circ" placeholder="Например: 72.5" oninput="updateWeightHint()">
+    </div>
+
+    <label for="circLong" style="margin-top:10px;">2. Обхват вдоль от хвостика к попке (см)</label>
+    <div class="input-wrapper">
+        <span class="input-icon">🔄</span>
+        <input type="number" id="circLong" placeholder="Например: 81.5" oninput="updateWeightHint()">
     </div>
 
     <label for="weight" style="margin-top:15px;">Точный вес арбуза (кг)</label>
     <div class="input-wrapper">
         <span class="input-icon">⚖️</span>
-        <input type="number" id="weight" placeholder="Например: 8.63" step="0.01">
+        <input type="number" id="weight" placeholder="Например: 7.559" oninput="updateWeightHint()">
     </div>
-    <div id="weight-hint-text" class="weight-hint"></div>
-
-    <!-- Новый блок честного описания точности замера -->
-    <div class="accuracy-box">
-        🎯 <b>Точность метода:</b> До 95% при идеальном перпендикулярном замере обхвата. Ошибка в длине ленты всего на 2 см смещает расчет объема на 8%. Измеряйте внимательно!
-    </div>
+    <div id="weight-hint-text" style="margin-top:6px; font-size:13px; color:#2e7d32; font-weight:500; display:none;"></div>
 
     <button onclick="analyzeWatermelon()">Проверить спелость</button>
     <div id="result"></div>
 
-    <!-- Подвал со стихотворением и авторством -->
     <div class="footer">
-        <div class="creator-name">Разработка: Александр Янпольский</div>
+        <b>Разработка: Александр Янпольский</b><br><br>
         <div class="poem-box">
             Арбуз и солнце день чудесный,<br>
             Но даже если солнца нет.<br>
@@ -81,6 +74,19 @@
 </div>
 
 <script>
+    function calculateVolume() {
+        const circ = parseFloat(document.getElementById('circ').value);
+        let circLong = parseFloat(document.getElementById('circLong').value);
+        if (!circ || circ < 20) return 0;
+        if (!circLong) circLong = circ;
+
+        const rWidth = circ / (2 * Math.PI);
+        const rLength = circLong / (2 * Math.PI);
+        
+        // Математическая формула трехосного эллипсоида
+        return (4 / 3) * Math.PI * Math.pow(rWidth, 2) * rLength / 1000;
+    }
+
     function updateWeightHint() {
         const variety = document.getElementById('variety').value;
         const circ = parseFloat(document.getElementById('circ').value);
@@ -89,58 +95,67 @@
 
         if (!circ || circ < 20) { hintDiv.style.display = 'none'; return; }
 
-        const radius = circ / (2 * Math.PI);
-        let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
-        let kForm = (variety === 'oval') ? 1.28 : 1.0;
-        let kBark = (variety === 'oval') ? 0.98 : (variety === 'yellow' ? 0.92 : 1.0);
+        const vol = calculateVolume();
+        let kBark = (variety === 'oval') ? 0.84 : (variety === 'yellow' ? 0.94 : 0.91);
         
-        const finalVolume = baseVolume * kForm;
         hintDiv.style.display = 'block';
-        hintDiv.innerHTML = `📋 <b>Оптимальный вес для ${circ} см:</b> от <b>${((0.90 * finalVolume) / kBark).toFixed(2)}</b> до <b>${((0.98 * finalVolume) / kBark).toFixed(2)} кг</b>`;
+        hintDiv.innerHTML = `📋 <b>Идеальный вес:</b> от <b>${((0.90 * vol) / kBark).toFixed(2)}</b> до <b>${((0.98 * vol) / kBark).toFixed(2)} кг</b>`;
     }
 
     function analyzeWatermelon() {
         const variety = document.getElementById('variety').value;
-        const circ = parseFloat(document.getElementById('circ').value);
         const weight = parseFloat(document.getElementById('weight').value);
         const resultDiv = document.getElementById('result');
-        if (!circ || !weight) { alert('Заполните поля!'); return; }
+        if (!weight) { alert('Заполните вес!'); return; }
         
-        document.getElementById('weight-hint-text').style.display = 'none';
-        const radius = circ / (2 * Math.PI);
-        let baseVolume = (4 / 3) * Math.PI * Math.pow(radius, 3) / 1000;
+        const vol = calculateVolume();
+        if (vol === 0) { alert('Заполните размеры!'); return; }
         
-        let kForm = 1.0; let kBark = 1.0;
-        if (variety === 'oval') { kForm = 1.28; kBark = 0.98; }
-        else if (variety === 'yellow') { kBark = 0.92; }
-        
-        const finalVolume = baseVolume * kForm;
-        const density = (weight * kBark) / finalVolume;
+        // Коэффициент корки (у овальных убираем 16% на толстую кору)
+        let kBark = (variety === 'oval') ? 0.84 : (variety === 'yellow' ? 0.94 : 0.91);
+        const density = (weight * kBark) / vol;
         resultDiv.style.display = 'block';
 
         let score = 2;
-        if (density >= 0.93 && density <= 0.95) score = 10;
-        else if (density > 0.95 && density <= 0.96) score = 9;
-        else if (density >= 0.91 && density < 0.93) score = 8;
-        else if (density > 0.96 && density <= 0.97) score = 7;
-        else if (density >= 0.88 && density < 0.91) score = 6;
-        else if (density > 0.97 && density <= 0.98) score = 5;
-        else if (density >= 0.81 && density < 0.88) score = 5;
-        else if (density >= 0.76 && density < 0.81) score = 4;
-        else if (density > 0.98 && density <= 1.05) score = 3;
+        let desc = "";
+        let cl = "unripe-red";
 
-        const scoreGuide = `<div class="score-info">💡 Референс: Арбузы с оценкой 7/10 и выше считаются оптимальными для покупки.</div>`;
-
-        if (density > 0.98) {
-            resultDiv.className = 'unripe';
-            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>❌ НЕДОЗРЕЛЫЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз слишком тяжелый для своего объема. Внутри сплошная плотная "водяная" структура. Мякоть будет бледной, несладкой и травянистой.</small></div>${scoreGuide}`;
-        } else if (density >= 0.90 && density <= 0.98) {
-            resultDiv.className = 'ripe';
-            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>🎉 ИДЕАЛЬНО СПЕЛЫЙ! (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Эталонный баланс физических свойств. Мякоть плотная, хрустящая, очень сочная и равномерно сладкая. Самый надежный выбор.</small></div>${scoreGuide}`;
-        } else {
-            resultDiv.className = 'overripe';
-            resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>⚠️ ВАТНЫЙ / СВЕРХСЛАДКИЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз критически легкий. Мякоть имеет повышенную сахаристость («крупчатая»), но ее структура уже ватно-рыхлая, возможно образование внутренних пустот. Корка сильно натянута — плод может сам треснуть при первом надрезе ножом.</small></div>${scoreGuide}`;
+        // Строгая последовательная проверка условий плотности
+        if (density >= 0.935 && density <= 0.950) { 
+            score = 10; cl = "ripe-green";
+            desc = "<b>Абсолютный мировой эталон!</b> Мякоть идеальной плотности, невероятно хрустящая («звонкая»), сочная, без намека на рыхлость."; 
+        } else if (density >= 0.925 && density < 0.935) { 
+            score = 9; cl = "ripe-green";
+            desc = "<b>Превосходный выбор!</b> Арбуз очень плотный, звонкий при разрезании. Мякоть хрустит, структура ячеек полностью сохранена."; 
+        } else if (density >= 0.910 && density < 0.925) { 
+            score = 8; cl = "ripe-green";
+            desc = "<b>Отличный, очень вкусный плод!</b> Зафиксирована высокая сочность. В глубине (в зоне косточек) присутствует едва заметная, небольшая рыхлость, но ватности нет."; 
+        } else if (density >= 0.890 && density < 0.910) { 
+            score = 7; cl = "ripe-green";
+            desc = "<b>Хороший спелый арбуз.</b> Мякоть сочная, сладкая, но плотность структуры начинает снижаться. Возле косточек текстура становится чуть более мягкой."; 
+        } else if (density >= 0.850 && density < 0.890) { 
+            score = 6; cl = "ripe-gold";
+            desc = "<b>Пограничная стадия (Рыхлый).</b> Сахар начинает медленно распадаться. Текстура мякоти приобретает заметную рыхлость, монолитный хруст потерян. Есть риск получить пресноватый вкус."; 
+        } else if (density >= 0.800 && density < 0.850) { 
+            score = 5; cl = "unripe-red";
+            desc = "<b>ПЕРЕЗРЕЛЫЙ БРАК (Ватный / Безвкусный).</b> Плотность упала критически. Сахара распались в процессе старения плода. Мякоть ватно-рыхлая по всему объёму, имеет неприятный пресный вкус. Покупать нельзя!"; 
+        } else if (density >= 0.750 && density < 0.800) {
+            score = 4; cl = "unripe-red";
+            desc = "<b>Старый усыхающий плод.</b> Мякоть полностью потеряла сочность и вкус. Внутри начались процессы автолиза, образовались огромные сухие трещины и пустоты.";
+        } else if (density < 0.750) {
+            score = 2; cl = "unripe-red";
+            desc = "<b>Забродившая каша.</b> Внутри пустой испорченный плод с признаками скисания.";
+        } else if (density > 0.950 && density <= 0.980) { 
+            score = 4; cl = "unripe-red";
+            desc = "<b>Слегка недозрелый.</b> Плотноват. Мякоть жестковатая, сахара маловато, вкус с кислинкой."; 
+        } else if (density > 0.980) { 
+            score = 3; cl = "unripe-red";
+            desc = "<b>Зеленый арбуз (Водяная бомба).</b> Экстремально тяжелая водяная структура. Мякоть бледная, жесткая и травянистая."; 
         }
+        
+        const scoreGuide = `<div class="score-info">💡 Референс: Арбузы с оценкой 7/10 и выше считаются оптимальными для покупки.</div>`;
+        resultDiv.className = cl; 
+        resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br>Плотность мякоти: ${density.toFixed(2)}<br><div style="text-align: left; margin-top: 5px;"><small>${desc}</small></div>${scoreGuide}`;
     }
 </script>
 </body>
