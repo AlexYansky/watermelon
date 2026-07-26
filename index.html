@@ -11,10 +11,27 @@
     <title>Спелый арбуз</title>
 
     <style>
+        :root {
+            --green-dark: #1b5e20;
+            --green-main: #4caf50;
+            --green-medium: #81c784;
+            --green-pale: #e8f5e9;
+            --background: #f0f4f1;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border: #bdc3c7;
+            --gold: #e65100;
+            --red: #b71c1c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: #f0f4f1;
-            color: #2c3e50;
+            background: var(--background);
+            color: var(--text-main);
             padding: 15px;
             margin: 0;
         }
@@ -26,27 +43,26 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             max-width: 420px;
             margin: 10px auto;
-            box-sizing: border-box;
         }
 
         h1 {
             text-align: center;
-            color: #1b5e20;
+            color: var(--green-dark);
             font-size: 24px;
-            margin-top: 0;
-            margin-bottom: 5px;
+            margin: 0 0 5px;
         }
 
         .subtitle {
             text-align: center;
-            color: #7f8c8d;
+            color: var(--text-muted);
             font-size: 13px;
+            line-height: 1.45;
             margin-bottom: 25px;
         }
 
         label {
             display: block;
-            font-weight: bold;
+            font-weight: 700;
             margin: 15px 0 6px;
             font-size: 14px;
             color: #34495e;
@@ -56,12 +72,11 @@
         input {
             width: 100%;
             padding: 14px 14px 14px 42px;
-            border: 2px solid #bdc3c7;
+            border: 2px solid var(--border);
             border-radius: 10px;
-            box-sizing: border-box;
             font-size: 16px;
             outline: none;
-            background: #ffffff;
+            background: white;
         }
 
         select {
@@ -70,7 +85,7 @@
 
         select:focus,
         input:focus {
-            border-color: #4caf50;
+            border-color: var(--green-main);
         }
 
         .input-wrapper {
@@ -84,20 +99,17 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 18px;
-            color: #7f8c8d;
+            color: var(--text-muted);
             pointer-events: none;
         }
 
         button {
             width: 100%;
-            background: #4caf50;
-            color: white;
             border: none;
-            padding: 16px;
+            padding: 15px;
             border-radius: 10px;
-            font-size: 17px;
-            font-weight: bold;
-            margin-top: 25px;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
             transition: transform 0.1s ease, opacity 0.2s ease;
         }
@@ -109,6 +121,36 @@
         button:disabled {
             opacity: 0.65;
             cursor: wait;
+        }
+
+        .main-button {
+            margin-top: 25px;
+            background: var(--green-main);
+            color: white;
+        }
+
+        .secondary-button {
+            margin-top: 12px;
+            background: white;
+            color: var(--green-dark);
+            border: 2px solid var(--green-medium);
+        }
+
+        .muted-button {
+            margin-top: 10px;
+            background: #eef2ef;
+            color: #546e5a;
+        }
+
+        .hint-box {
+            background: #f4f9f4;
+            border-left: 4px solid var(--green-main);
+            border-radius: 4px;
+            padding: 10px 14px;
+            margin: 15px 0;
+            font-size: 13px;
+            line-height: 1.45;
+            color: #2e7d32;
         }
 
         #result {
@@ -123,36 +165,25 @@
 
         .ripe-green {
             background: #e8f5e9;
-            color: #1b5e20;
-            border: 2px solid #81c784;
+            color: var(--green-dark);
+            border: 2px solid var(--green-medium);
         }
 
         .ripe-gold {
             background: #fff8e1;
-            color: #e65100;
+            color: var(--gold);
             border: 2px solid #ffb74d;
         }
 
         .unripe-red {
             background: #ffebee;
-            color: #b71c1c;
+            color: var(--red);
             border: 2px solid #e57373;
         }
 
-        .hint-box {
-            background: #f4f9f4;
-            border-left: 4px solid #4caf50;
-            border-radius: 4px;
-            padding: 10px 14px;
-            margin: 15px 0;
-            font-size: 13px;
-            line-height: 1.4;
-            color: #2e7d32;
-        }
-
         .score-badge {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 19px;
+            font-weight: 800;
         }
 
         .score-info {
@@ -164,26 +195,188 @@
         }
 
         .test-info {
-            margin-top: 12px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.65);
-            border-radius: 8px;
+            margin-top: 13px;
+            padding: 11px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 9px;
             font-size: 12px;
-            line-height: 1.45;
+            line-height: 1.5;
         }
 
         .saving-status {
-            margin-top: 8px;
+            margin-top: 7px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+        }
+
+        .feedback-invitation {
+            display: none;
+            margin-top: 18px;
+            padding: 17px;
+            background: #f8fbf8;
+            border: 2px solid #a5d6a7;
+            border-radius: 14px;
+            text-align: left;
+        }
+
+        .feedback-invitation h2,
+        .reminder-card h2,
+        .feedback-form h2,
+        .thank-you-card h2 {
+            color: var(--green-dark);
+            font-size: 18px;
+            margin: 0 0 8px;
+        }
+
+        .feedback-invitation p,
+        .reminder-card p,
+        .feedback-form p,
+        .thank-you-card p {
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 7px 0;
+        }
+
+        .project-motto {
+            font-weight: 700;
+            color: #2e7d32;
+        }
+
+        .reminder-card {
+            display: none;
+            max-width: 420px;
+            margin: 10px auto;
+            padding: 18px;
+            background: white;
+            border: 2px solid var(--green-medium);
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        }
+
+        .pending-summary {
+            background: #f4f9f4;
+            padding: 11px;
+            margin: 12px 0;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .feedback-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 15px;
+            background: rgba(20, 40, 25, 0.58);
+        }
+
+        .feedback-form {
+            background: white;
+            max-width: 420px;
+            margin: 20px auto;
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.22);
+        }
+
+        .honesty-box {
+            background: #f4f9f4;
+            border-left: 4px solid var(--green-main);
+            border-radius: 5px;
+            padding: 11px 13px;
+            margin: 12px 0 18px;
+            color: #2e7d32;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .score-question {
+            font-size: 15px;
+            font-weight: 800;
+            text-align: center;
+            margin: 18px 0 10px;
+        }
+
+        .score-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .score-button {
+            margin: 0;
+            padding: 12px 4px;
+            background: #f2f6f3;
+            color: #2e7d32;
+            border: 2px solid #c8e6c9;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .score-button.selected {
+            background: var(--green-main);
+            color: white;
+            border-color: var(--green-main);
+            transform: scale(1.04);
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+
+        .city-help {
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.4;
+            margin-top: 5px;
+        }
+
+        .feedback-status {
+            display: none;
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            background: #f4f9f4;
+            color: #2e7d32;
+        }
+
+        .thank-you-card {
+            display: none;
+            text-align: center;
+            padding: 12px 2px;
+        }
+
+        .thank-you-icon {
+            font-size: 50px;
+            margin-bottom: 8px;
+        }
+
+        .privacy-note {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border);
+            font-size: 11px;
+            line-height: 1.45;
+            color: var(--text-muted);
+            text-align: center;
         }
 
         .footer {
             text-align: center;
             margin-top: 30px;
             font-size: 12px;
-            color: #7f8c8d;
-            border-top: 1px dashed #bdc3c7;
+            color: var(--text-muted);
+            border-top: 1px dashed var(--border);
             padding-top: 15px;
         }
 
@@ -194,7 +387,7 @@
             background: #f9fbf9;
             padding: 12px;
             border-radius: 8px;
-            border-left: 3px solid #81c784;
+            border-left: 3px solid var(--green-medium);
             display: inline-block;
             text-align: left;
         }
@@ -203,15 +396,40 @@
 
 <body>
 
+<div class="reminder-card" id="reminder-card">
+    <h2>🍉 Уже разрезали арбуз?</h2>
+
+    <p id="reminder-description">
+        У вас осталась незавершённая проверка.
+        Реальная оценка займёт около 20 секунд
+        и поможет сделать алгоритм точнее.
+    </p>
+
+    <div class="pending-summary" id="pending-summary"></div>
+
+    <button type="button" onclick="openNextPendingFeedback()">
+        Да, оценить
+    </button>
+
+    <button
+        type="button"
+        class="muted-button"
+        onclick="hideReminderForNow()"
+    >
+        Напомнить позже
+    </button>
+</div>
+
 <div class="card">
 
     <h1>🍉 Спелый арбуз</h1>
 
     <div class="subtitle">
-        Расчёт состояния плода по его массе и геометрическим размерам
+        Расчёт состояния плода по его массе
+        и геометрическим размерам
     </div>
 
-    <label for="variety">Тип / сорт арбуза</label>
+    <label for="variety">Тип арбуза</label>
 
     <select id="variety" onchange="updateWeightHint()">
         <option value="oval">Вытянутый / овальный</option>
@@ -219,7 +437,7 @@
         <option value="yellow">Жёлтый / без семечек</option>
     </select>
 
-    <label for="method">Режим измерения габаритов</label>
+    <label for="method">Режим измерения</label>
 
     <select id="method" onchange="toggleMethod()">
         <option value="quick">
@@ -280,7 +498,7 @@
 
     </div>
 
-    <label for="weight" style="margin-top: 15px;">
+    <label for="weight">
         Точный вес арбуза, кг
     </label>
 
@@ -305,7 +523,7 @@
             margin-top: 6px;
             font-size: 13px;
             color: #2e7d32;
-            font-weight: 500;
+            font-weight: 600;
             display: none;
         "
     ></div>
@@ -313,12 +531,45 @@
     <button
         type="button"
         id="analyze-button"
+        class="main-button"
         onclick="analyzeWatermelon()"
     >
         Проверить спелость
     </button>
 
     <div id="result"></div>
+
+    <div class="feedback-invitation" id="feedback-invitation">
+        <h2>🍉 Когда разрежете арбуз</h2>
+
+        <p>
+            Вернитесь в приложение и сообщите,
+            насколько удачной оказалась покупка.
+        </p>
+
+        <p>
+            Для нас одинаково важны и совпадения,
+            и расхождения с прогнозом.
+        </p>
+
+        <p class="project-motto">
+            Каждый честный результат делает
+            следующие прогнозы немного точнее.
+        </p>
+
+        <button
+            type="button"
+            class="secondary-button"
+            onclick="openLatestCreatedFeedback()"
+        >
+            Я уже разрезал арбуз — оценить
+        </button>
+    </div>
+
+    <div class="privacy-note">
+        Данные используются в обезличенном виде
+        только для проверки и улучшения алгоритма.
+    </div>
 
     <div class="footer">
 
@@ -337,24 +588,144 @@
 
 </div>
 
+<div class="feedback-overlay" id="feedback-overlay">
+
+    <div class="feedback-form">
+
+        <div id="feedback-content">
+
+            <h2>🍉 Помогите сделать алгоритм точнее</h2>
+
+            <p>
+                Для нас одинаково ценны любые результаты —
+                и когда прогноз совпал, и когда оказался неточным.
+            </p>
+
+            <div class="honesty-box">
+                <b>
+                    Оцените арбуз таким,
+                    каким он оказался на самом деле.
+                </b>
+                <br>
+                Представьте, что друг попросил вас
+                рекомендовать или не рекомендовать этот арбуз.
+            </div>
+
+            <div
+                class="pending-summary"
+                id="feedback-test-summary"
+            ></div>
+
+            <div class="score-question">
+                Насколько удачной оказалась покупка?
+            </div>
+
+            <div class="score-buttons">
+                <button type="button" class="score-button" data-score="1" onclick="selectScore(1)">1</button>
+                <button type="button" class="score-button" data-score="2" onclick="selectScore(2)">2</button>
+                <button type="button" class="score-button" data-score="3" onclick="selectScore(3)">3</button>
+                <button type="button" class="score-button" data-score="4" onclick="selectScore(4)">4</button>
+                <button type="button" class="score-button" data-score="5" onclick="selectScore(5)">5</button>
+                <button type="button" class="score-button" data-score="6" onclick="selectScore(6)">6</button>
+                <button type="button" class="score-button" data-score="7" onclick="selectScore(7)">7</button>
+                <button type="button" class="score-button" data-score="8" onclick="selectScore(8)">8</button>
+                <button type="button" class="score-button" data-score="9" onclick="selectScore(9)">9</button>
+                <button type="button" class="score-button" data-score="10" onclick="selectScore(10)">10</button>
+            </div>
+
+            <div class="scale-labels">
+                <span>1 — очень неудачная</span>
+                <span>10 — отличная</span>
+            </div>
+
+            <label for="city">
+                📍 Где был куплен арбуз?
+            </label>
+
+            <div class="input-wrapper">
+                <span class="input-icon">🏙️</span>
+
+                <input
+                    type="text"
+                    id="city"
+                    maxlength="100"
+                    placeholder="Например: Астрахань"
+                    autocomplete="address-level2"
+                >
+            </div>
+
+            <div class="city-help">
+                Необязательно. Помогает оценить географию проекта.
+            </div>
+
+            <button
+                type="button"
+                class="main-button"
+                id="send-feedback-button"
+                onclick="submitFeedback()"
+            >
+                Отправить наблюдение
+            </button>
+
+            <button
+                type="button"
+                class="muted-button"
+                onclick="closeFeedbackForm()"
+            >
+                Вернуться
+            </button>
+
+            <div
+                class="feedback-status"
+                id="feedback-status"
+            ></div>
+
+        </div>
+
+        <div class="thank-you-card" id="thank-you-card">
+            <div class="thank-you-icon">🍉</div>
+
+            <h2>Спасибо!</h2>
+
+            <p>
+                Ваше наблюдение сохранено.
+            </p>
+
+            <p>
+                Благодаря вашей честной оценке
+                алгоритм стал немного точнее.
+            </p>
+
+            <p class="project-motto">
+                Каждый честный результат делает
+                следующий прогноз немного точнее.
+            </p>
+
+            <button
+                type="button"
+                class="main-button"
+                onclick="finishFeedback()"
+            >
+                Готово
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
 <script>
-    /*
-     * Адрес Google Apps Script.
-     * Сюда приложение отправляет результаты расчёта.
-     */
     const GOOGLE_SCRIPT_URL =
         "https://script.google.com/macros/s/AKfycbzcBB0p4jNfHxf0Z2pT5ANLaEKdj0fDyAjjexeZ4appI1o3dFKnvsIBZXGdFnfURvinkQ/exec";
 
-    /*
-     * Версия алгоритма.
-     * При изменении коэффициентов меняйте, например:
-     * 1.0 → 1.1 → 1.2.
-     */
     const ALGORITHM_VERSION = "1.0";
+    const PENDING_TESTS_STORAGE_KEY = "watermelonPendingTests";
+    const SAVED_CITY_STORAGE_KEY = "watermelonSavedCity";
 
-    /*
-     * Коэффициенты для разных типов арбуза.
-     */
+    let selectedActualScore = null;
+    let activeFeedbackTestId = null;
+    let latestCreatedTestId = null;
+
     const WATERMELON_TYPES = {
         oval: {
             title: "Вытянутый / овальный",
@@ -391,17 +762,17 @@
             return NaN;
         }
 
-        const normalizedValue =
-            String(element.value).replace(",", ".");
-
-        return Number(normalizedValue);
+        return Number(
+            String(element.value).replace(",", ".")
+        );
     }
 
     function hideResult() {
-        const resultDiv =
-            document.getElementById("result");
+        document.getElementById("result").style.display = "none";
 
-        resultDiv.style.display = "none";
+        document
+            .getElementById("feedback-invitation")
+            .style.display = "none";
     }
 
     function toggleMethod() {
@@ -431,8 +802,8 @@
             hint.innerHTML = `
                 💡 <b>Методика 3D-замера:</b>
                 укажите поперечный обхват по экватору
-                и продольный обхват от хвостика через нижнюю
-                часть плода и обратно к хвостику.
+                и продольный обхват от хвостика
+                через нижнюю часть плода и обратно.
             `;
         }
 
@@ -468,10 +839,8 @@
                     Math.pow(widthRadiusCm, 3)
                 ) / 1000;
 
-            return (
-                sphericalVolumeLiters *
-                watermelonType.volumeCoefficient
-            );
+            return sphericalVolumeLiters *
+                watermelonType.volumeCoefficient;
         }
 
         const longitudinalCircumference =
@@ -488,15 +857,12 @@
         const lengthRadiusCm =
             longitudinalCircumference / (2 * Math.PI);
 
-        const ellipsoidVolumeLiters =
-            (
-                (4 / 3) *
-                Math.PI *
-                Math.pow(widthRadiusCm, 2) *
-                lengthRadiusCm
-            ) / 1000;
-
-        return ellipsoidVolumeLiters;
+        return (
+            (4 / 3) *
+            Math.PI *
+            Math.pow(widthRadiusCm, 2) *
+            lengthRadiusCm
+        ) / 1000;
     }
 
     function updateWeightHint() {
@@ -538,13 +904,10 @@
     }
 
     function createTestId() {
-        const timePart =
-            Date.now();
-
         const randomPart =
             Math.floor(1000 + Math.random() * 9000);
 
-        return `WM-${timePart}-${randomPart}`;
+        return `WM-${Date.now()}-${randomPart}`;
     }
 
     function getPredictionByDensity(density) {
@@ -552,123 +915,66 @@
         let description = "";
         let resultClass = "unripe-red";
 
-        if (
-            density >= 0.935 &&
-            density <= 0.950
-        ) {
+        if (density >= 0.935 && density <= 0.950) {
             score = 10;
             resultClass = "ripe-green";
 
-            description = `
-                <b>Абсолютный мировой эталон!</b>
-                Мякоть идеальной плотности, очень хрустящая,
-                сочная и без выраженной рыхлости.
-            `;
-        } else if (
-            density >= 0.925 &&
-            density < 0.935
-        ) {
+            description =
+                "<b>Абсолютный мировой эталон!</b> Мякоть идеальной плотности, очень хрустящая, сочная и без выраженной рыхлости.";
+        } else if (density >= 0.925 && density < 0.935) {
             score = 9;
             resultClass = "ripe-green";
 
-            description = `
-                <b>Превосходный выбор!</b>
-                Арбуз плотный и сочный. Мякоть должна хорошо
-                хрустеть, а её структура практически полностью
-                сохранена.
-            `;
-        } else if (
-            density >= 0.910 &&
-            density < 0.925
-        ) {
+            description =
+                "<b>Превосходный выбор!</b> Арбуз плотный и сочный. Мякоть должна хорошо хрустеть.";
+        } else if (density >= 0.910 && density < 0.925) {
             score = 8;
             resultClass = "ripe-green";
 
-            description = `
-                <b>Отличный, очень вкусный плод!</b>
-                Ожидается высокая сочность. В центральной части
-                может присутствовать небольшое размягчение,
-                но выраженной ватности быть не должно.
-            `;
-        } else if (
-            density >= 0.890 &&
-            density < 0.910
-        ) {
+            description =
+                "<b>Отличный, очень вкусный плод!</b> Ожидается высокая сочность без выраженной ватности.";
+        } else if (density >= 0.890 && density < 0.910) {
             score = 7;
             resultClass = "ripe-green";
 
-            description = `
-                <b>Хороший спелый арбуз.</b>
-                Мякоть должна быть сочной и достаточно сладкой,
-                однако её структура уже может становиться мягче,
-                особенно ближе к семенам.
-            `;
-        } else if (
-            density >= 0.850 &&
-            density < 0.890
-        ) {
+            description =
+                "<b>Хороший спелый арбуз.</b> Мякоть должна быть сочной, но может становиться мягче ближе к семенам.";
+        } else if (density >= 0.850 && density < 0.890) {
             score = 6;
             resultClass = "ripe-gold";
 
-            description = `
-                <b>Пограничная стадия.</b>
-                Мякоть может быть рыхлой, а выраженный хруст —
-                частично утрачен. Возможен менее насыщенный вкус.
-            `;
-        } else if (
-            density >= 0.800 &&
-            density < 0.850
-        ) {
+            description =
+                "<b>Пограничная стадия.</b> Мякоть может быть рыхлой, а выраженный хруст — частично утрачен.";
+        } else if (density >= 0.800 && density < 0.850) {
             score = 5;
             resultClass = "unripe-red";
 
-            description = `
-                <b>Вероятно перезрелый арбуз.</b>
-                Возможна выраженная рыхлость или ватность мякоти.
-                Покупка такого плода связана с высоким риском.
-            `;
-        } else if (
-            density >= 0.750 &&
-            density < 0.800
-        ) {
+            description =
+                "<b>Вероятно перезрелый арбуз.</b> Возможна выраженная рыхлость или ватность мякоти.";
+        } else if (density >= 0.750 && density < 0.800) {
             score = 4;
             resultClass = "unripe-red";
 
-            description = `
-                <b>Вероятно старый или усыхающий плод.</b>
-                Возможны внутренние пустоты, трещины,
-                сухие участки и снижение сочности.
-            `;
+            description =
+                "<b>Вероятно старый или усыхающий плод.</b> Возможны пустоты, трещины и снижение сочности.";
         } else if (density < 0.750) {
             score = 2;
             resultClass = "unripe-red";
 
-            description = `
-                <b>Критически низкая расчётная плотность.</b>
-                Возможны крупные внутренние пустоты,
-                разрушение мякоти или порча плода.
-            `;
-        } else if (
-            density > 0.950 &&
-            density <= 0.980
-        ) {
+            description =
+                "<b>Критически низкая расчётная плотность.</b> Возможны крупные пустоты или разрушение мякоти.";
+        } else if (density > 0.950 && density <= 0.980) {
             score = 4;
             resultClass = "unripe-red";
 
-            description = `
-                <b>Возможно, арбуз немного недозрел.</b>
-                Мякоть может быть плотной и жестковатой,
-                а сладость — недостаточно выраженной.
-            `;
+            description =
+                "<b>Возможно, арбуз немного недозрел.</b> Мякоть может быть плотной и недостаточно сладкой.";
         } else if (density > 0.980) {
             score = 3;
             resultClass = "unripe-red";
 
-            description = `
-                <b>Высокая вероятность недозрелого плода.</b>
-                Мякоть может быть бледной, водянистой,
-                жёсткой и с травянистым вкусом.
-            `;
+            description =
+                "<b>Высокая вероятность недозрелого плода.</b> Мякоть может быть бледной, жёсткой и травянистой.";
         }
 
         let predictedCategory =
@@ -690,7 +996,7 @@
         };
     }
 
-    async function sendPredictionToGoogleTable(data) {
+    async function postDataToGoogle(data) {
         try {
             await fetch(
                 GOOGLE_SCRIPT_URL,
@@ -743,9 +1049,7 @@
             weight <= 0 ||
             weight > 100
         ) {
-            alert(
-                "Укажите корректный вес арбуза."
-            );
+            alert("Укажите корректный вес арбуза.");
             return;
         }
 
@@ -780,7 +1084,7 @@
             volume <= 0
         ) {
             alert(
-                "Не удалось рассчитать объём. Проверьте введённые размеры."
+                "Не удалось рассчитать объём. Проверьте размеры."
             );
             return;
         }
@@ -800,12 +1104,8 @@
         const testId =
             createTestId();
 
-        const scoreGuide = `
-            <div class="score-info">
-                💡 Арбузы с оценкой 7/10 и выше
-                считаются оптимальными для покупки.
-            </div>
-        `;
+        latestCreatedTestId =
+            testId;
 
         resultDiv.style.display = "block";
         resultDiv.className =
@@ -824,15 +1124,16 @@
             <div
                 style="
                     text-align: left;
-                    margin-top: 8px;
+                    margin-top: 10px;
                 "
             >
-                <small>
-                    ${prediction.description}
-                </small>
+                ${prediction.description}
             </div>
 
-            ${scoreGuide}
+            <div class="score-info">
+                💡 Арбузы с оценкой 7/10 и выше
+                считаются оптимальными для покупки.
+            </div>
 
             <div class="test-info">
                 Номер проверки:
@@ -850,17 +1151,30 @@
             </div>
         `;
 
+        document
+            .getElementById("feedback-invitation")
+            .style.display = "block";
+
         analyzeButton.disabled = true;
         analyzeButton.textContent =
             "Сохраняем результат…";
 
-        const dataForTable = {
+        const pendingTest = {
             testId: testId,
-            algorithmVersion:
-                ALGORITHM_VERSION,
+            createdAt: new Date().toISOString(),
+            watermelonType: watermelonType.title,
+            weightKg: Number(weight.toFixed(3)),
+            predictedScore: prediction.score,
+            density: Number(density.toFixed(4))
+        };
 
-            watermelonType:
-                watermelonType.title,
+        addPendingTest(pendingTest);
+
+        const dataForTable = {
+            action: "save_prediction",
+            testId: testId,
+            algorithmVersion: ALGORITHM_VERSION,
+            watermelonType: watermelonType.title,
 
             measurementMethod:
                 method === "quick"
@@ -894,21 +1208,16 @@
         };
 
         const sentSuccessfully =
-            await sendPredictionToGoogleTable(
-                dataForTable
-            );
+            await postDataToGoogle(dataForTable);
 
         const savingStatus =
             document.getElementById("saving-status");
 
         if (savingStatus) {
-            if (sentSuccessfully) {
-                savingStatus.innerHTML =
-                    "✅ Результат отправлен в базу наблюдений";
-            } else {
-                savingStatus.innerHTML =
-                    "⚠️ Не удалось отправить результат. Проверьте интернет.";
-            }
+            savingStatus.innerHTML =
+                sentSuccessfully
+                    ? "✅ Результат отправлен в базу наблюдений"
+                    : "⚠️ Не удалось отправить результат. Проверьте интернет.";
         }
 
         analyzeButton.disabled = false;
@@ -916,7 +1225,403 @@
             "Проверить ещё раз";
     }
 
-    toggleMethod();
+    function getPendingTests() {
+        try {
+            const savedValue =
+                localStorage.getItem(
+                    PENDING_TESTS_STORAGE_KEY
+                );
+
+            if (!savedValue) {
+                return [];
+            }
+
+            const parsedValue =
+                JSON.parse(savedValue);
+
+            return Array.isArray(parsedValue)
+                ? parsedValue
+                : [];
+        } catch (error) {
+            console.error(
+                "Не удалось прочитать незавершённые проверки:",
+                error
+            );
+
+            return [];
+        }
+    }
+
+    function savePendingTests(tests) {
+        localStorage.setItem(
+            PENDING_TESTS_STORAGE_KEY,
+            JSON.stringify(tests)
+        );
+    }
+
+    function addPendingTest(test) {
+        const tests =
+            getPendingTests();
+
+        const alreadyExists =
+            tests.some(
+                item =>
+                    item.testId === test.testId
+            );
+
+        if (!alreadyExists) {
+            tests.push(test);
+            savePendingTests(tests);
+        }
+    }
+
+    function removePendingTest(testId) {
+        const updatedTests =
+            getPendingTests().filter(
+                item =>
+                    item.testId !== testId
+            );
+
+        savePendingTests(updatedTests);
+    }
+
+    function getPendingTestById(testId) {
+        return getPendingTests().find(
+            item =>
+                item.testId === testId
+        ) || null;
+    }
+
+    function formatTestSummary(test) {
+        if (!test) {
+            return "";
+        }
+
+        const date =
+            new Date(test.createdAt);
+
+        const formattedDate =
+            Number.isNaN(date.getTime())
+                ? ""
+                : date.toLocaleString(
+                    "ru-RU",
+                    {
+                        day: "2-digit",
+                        month: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }
+                );
+
+        return `
+            <b>${test.watermelonType}</b>
+            <br>
+            Вес: <b>${test.weightKg} кг</b>
+            <br>
+            Прогноз: <b>${test.predictedScore}/10</b>
+            ${
+                formattedDate
+                    ? `<br>Проверка: ${formattedDate}`
+                    : ""
+            }
+        `;
+    }
+
+    function showPendingReminder() {
+        const tests =
+            getPendingTests();
+
+        if (tests.length === 0) {
+            return;
+        }
+
+        const firstTest =
+            tests[0];
+
+        const reminderCard =
+            document.getElementById("reminder-card");
+
+        const reminderDescription =
+            document.getElementById(
+                "reminder-description"
+            );
+
+        reminderDescription.textContent =
+            tests.length === 1
+                ? "У вас осталась одна незавершённая проверка. Реальная оценка займёт около 20 секунд и поможет сделать алгоритм точнее."
+                : `У вас осталось незавершённых проверок: ${tests.length}. Начнём с первой — оценка займёт около 20 секунд.`;
+
+        document.getElementById(
+            "pending-summary"
+        ).innerHTML =
+            formatTestSummary(firstTest);
+
+        reminderCard.style.display = "block";
+    }
+
+    function hideReminderForNow() {
+        document
+            .getElementById("reminder-card")
+            .style.display = "none";
+    }
+
+    function openNextPendingFeedback() {
+        const tests =
+            getPendingTests();
+
+        if (tests.length === 0) {
+            hideReminderForNow();
+            return;
+        }
+
+        openFeedbackFormForTest(
+            tests[0].testId
+        );
+    }
+
+    function openLatestCreatedFeedback() {
+        if (!latestCreatedTestId) {
+            const tests =
+                getPendingTests();
+
+            if (tests.length === 0) {
+                alert(
+                    "Незавершённая проверка не найдена."
+                );
+                return;
+            }
+
+            openFeedbackFormForTest(
+                tests[tests.length - 1].testId
+            );
+
+            return;
+        }
+
+        openFeedbackFormForTest(
+            latestCreatedTestId
+        );
+    }
+
+    function openFeedbackFormForTest(testId) {
+        const test =
+            getPendingTestById(testId);
+
+        if (!test) {
+            alert(
+                "Эта проверка уже завершена или не найдена."
+            );
+            return;
+        }
+
+        activeFeedbackTestId =
+            testId;
+
+        selectedActualScore =
+            null;
+
+        document
+            .querySelectorAll(".score-button")
+            .forEach(
+                button =>
+                    button.classList.remove(
+                        "selected"
+                    )
+            );
+
+        const savedCity =
+            localStorage.getItem(
+                SAVED_CITY_STORAGE_KEY
+            ) || "";
+
+        document.getElementById("city").value =
+            savedCity;
+
+        document.getElementById(
+            "feedback-test-summary"
+        ).innerHTML =
+            formatTestSummary(test);
+
+        document
+            .getElementById("feedback-status")
+            .style.display = "none";
+
+        document
+            .getElementById("feedback-content")
+            .style.display = "block";
+
+        document
+            .getElementById("thank-you-card")
+            .style.display = "none";
+
+        document
+            .getElementById("feedback-overlay")
+            .style.display = "block";
+
+        document.body.style.overflow =
+            "hidden";
+    }
+
+    function closeFeedbackForm() {
+        document
+            .getElementById("feedback-overlay")
+            .style.display = "none";
+
+        document.body.style.overflow =
+            "";
+
+        activeFeedbackTestId =
+            null;
+    }
+
+    function selectScore(score) {
+        selectedActualScore =
+            score;
+
+        document
+            .querySelectorAll(".score-button")
+            .forEach(
+                button => {
+                    const buttonScore =
+                        Number(
+                            button.dataset.score
+                        );
+
+                    button.classList.toggle(
+                        "selected",
+                        buttonScore === score
+                    );
+                }
+            );
+    }
+
+    async function submitFeedback() {
+        if (!activeFeedbackTestId) {
+            alert(
+                "Не удалось определить проверку."
+            );
+            return;
+        }
+
+        if (
+            !Number.isFinite(selectedActualScore) ||
+            selectedActualScore < 1 ||
+            selectedActualScore > 10
+        ) {
+            alert(
+                "Выберите оценку от 1 до 10."
+            );
+            return;
+        }
+
+        const city =
+            document
+                .getElementById("city")
+                .value
+                .trim()
+                .slice(0, 100);
+
+        if (city) {
+            localStorage.setItem(
+                SAVED_CITY_STORAGE_KEY,
+                city
+            );
+        }
+
+        const sendButton =
+            document.getElementById(
+                "send-feedback-button"
+            );
+
+        const feedbackStatus =
+            document.getElementById(
+                "feedback-status"
+            );
+
+        sendButton.disabled = true;
+        sendButton.textContent =
+            "Отправляем…";
+
+        feedbackStatus.style.display =
+            "block";
+
+        feedbackStatus.textContent =
+            "⏳ Сохраняем наблюдение…";
+
+        const sentSuccessfully =
+            await postDataToGoogle({
+                action: "save_feedback",
+                testId: activeFeedbackTestId,
+                actualScore:
+                    selectedActualScore,
+                city: city
+            });
+
+        sendButton.disabled = false;
+        sendButton.textContent =
+            "Отправить наблюдение";
+
+        if (!sentSuccessfully) {
+            feedbackStatus.textContent =
+                "⚠️ Не удалось отправить наблюдение. Проверьте интернет и попробуйте ещё раз.";
+
+            return;
+        }
+
+        removePendingTest(
+            activeFeedbackTestId
+        );
+
+        if (
+            latestCreatedTestId ===
+            activeFeedbackTestId
+        ) {
+            latestCreatedTestId =
+                null;
+
+            document
+                .getElementById(
+                    "feedback-invitation"
+                )
+                .style.display = "none";
+        }
+
+        document
+            .getElementById("reminder-card")
+            .style.display = "none";
+
+        document
+            .getElementById("feedback-content")
+            .style.display = "none";
+
+        document
+            .getElementById("thank-you-card")
+            .style.display = "block";
+    }
+
+    function finishFeedback() {
+        document
+            .getElementById("feedback-overlay")
+            .style.display = "none";
+
+        document.body.style.overflow =
+            "";
+
+        activeFeedbackTestId =
+            null;
+
+        selectedActualScore =
+            null;
+
+        showPendingReminder();
+    }
+
+    function initializeApplication() {
+        toggleMethod();
+        showPendingReminder();
+    }
+
+    initializeApplication();
 </script>
 
 </body>
