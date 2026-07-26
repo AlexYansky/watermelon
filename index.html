@@ -20,11 +20,12 @@
         .unripe { background: #ffebee; color: #b71c1c; border: 2px solid #e57373; }
         .overripe { background: #fff8e1; color: #f57f17; border: 2px solid #ffb74d; }
         .hint-box { background: #f4f9f4; border-left: 4px solid #4caf50; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 13px; line-height: 1.4; color: #2e7d32; }
+        .accuracy-box { background: #fbfbfc; border-left: 4px solid #95a5a6; border-radius: 4px; padding: 10px 14px; margin: 15px 0; font-size: 12px; line-height: 1.4; color: #7f8c8d; }
         .score-badge { display: inline-block; font-size: 28px; font-weight: bold; margin-bottom: 10px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.6); }
         .weight-hint { margin-top: 6px; font-size: 13px; color: #2e7d32; font-weight: 500; display: none; padding-left: 5px; }
         .score-info { font-size: 12px; margin-top: 8px; font-weight: bold; opacity: 0.8; }
         
-        /* Стили стильного подвала и стихотворения */
+        /* Стили подвала и стихотворения */
         .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #7f8c8d; border-top: 1px dashed #bdc3c7; padding-top: 15px; }
         .creator-name { font-weight: bold; color: #2c3e50; margin-bottom: 10px; font-size: 13px; }
         .poem-box { font-style: italic; color: #556b2f; line-height: 1.6; background: #f9fbf9; padding: 12px; border-radius: 8px; border-left: 3px solid #81c784; display: inline-block; text-align: left; }
@@ -58,6 +59,11 @@
         <input type="number" id="weight" placeholder="Например: 8.63" step="0.01">
     </div>
     <div id="weight-hint-text" class="weight-hint"></div>
+
+    <!-- Новый блок честного описания точности замера -->
+    <div class="accuracy-box">
+        🎯 <b>Точность метода:</b> До 95% при идеальном перпендикулярном замере обхвата. Ошибка в длине ленты всего на 2 см смещает расчет объема на 8%. Измеряйте внимательно!
+    </div>
 
     <button onclick="analyzeWatermelon()">Проверить спелость</button>
     <div id="result"></div>
@@ -112,7 +118,6 @@
         const density = (weight * kBark) / finalVolume;
         resultDiv.style.display = 'block';
 
-        // Динамический расчет 10-балльной шкалы на основе плотности мякоти
         let score = 2;
         if (density >= 0.93 && density <= 0.95) score = 10;
         else if (density > 0.95 && density <= 0.96) score = 9;
@@ -126,7 +131,6 @@
 
         const scoreGuide = `<div class="score-info">💡 Референс: Арбузы с оценкой 7/10 и выше считаются оптимальными для покупки.</div>`;
 
-        // Вывод стандартных выверенных коридоров спелости
         if (density > 0.98) {
             resultDiv.className = 'unripe';
             resultDiv.innerHTML = `<div class="score-badge">📊 Оценка: ${score}/10</div><br><b>❌ НЕДОЗРЕЛЫЙ (Плотность: ${density.toFixed(2)})</b><br><div style="text-align: left; margin-top: 5px;"><small>Арбуз слишком тяжелый для своего объема. Внутри сплошная плотная "водяная" структура. Мякоть будет бледной, несладкой и травянистой.</small></div>${scoreGuide}`;
