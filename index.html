@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -11,7 +12,7 @@
 
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background: #f0f4f1;
             color: #2c3e50;
             padding: 15px;
@@ -98,10 +99,16 @@
             font-weight: bold;
             margin-top: 25px;
             cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.2s ease;
         }
 
         button:active {
             transform: scale(0.99);
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: wait;
         }
 
         #result {
@@ -156,6 +163,21 @@
             opacity: 0.85;
         }
 
+        .test-info {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.65);
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .saving-status {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -186,7 +208,7 @@
     <h1>🍉 Спелый арбуз</h1>
 
     <div class="subtitle">
-        Расчет спелости плода по физической плотности мякоти
+        Расчёт состояния плода по его массе и геометрическим размерам
     </div>
 
     <label for="variety">Тип / сорт арбуза</label>
@@ -194,30 +216,30 @@
     <select id="variety" onchange="updateWeightHint()">
         <option value="oval">Вытянутый / овальный</option>
         <option value="classic">Обычный круглый</option>
-        <option value="yellow">Желтый / без семечек</option>
+        <option value="yellow">Жёлтый / без семечек</option>
     </select>
 
     <label for="method">Режим измерения габаритов</label>
 
     <select id="method" onchange="toggleMethod()">
         <option value="quick">
-            В один замер (быстро у прилавка)
+            В один замер — быстро у прилавка
         </option>
 
         <option value="precise">
-            В два замера (точное 3D-моделирование)
+            В два замера — точное 3D-моделирование
         </option>
     </select>
 
     <div class="hint-box" id="hint-text">
         💡 <b>Правило быстрого замера:</b>
         обхватите арбуз лентой строго
-        <b>поперек, по экватору</b>,
+        <b>поперёк, по экватору</b>,
         как если бы плод стоял хвостиком вверх.
     </div>
 
     <label for="circ">
-        1. Обхват поперек по экватору (см)
+        1. Обхват поперёк по экватору, см
     </label>
 
     <div class="input-wrapper">
@@ -238,7 +260,7 @@
     <div id="long-section" style="display: none;">
 
         <label for="circLong">
-            2. Обхват вдоль от хвостика к попке (см)
+            2. Продольный обхват от хвостика через попку, см
         </label>
 
         <div class="input-wrapper">
@@ -259,7 +281,7 @@
     </div>
 
     <label for="weight" style="margin-top: 15px;">
-        Точный вес арбуза (кг)
+        Точный вес арбуза, кг
     </label>
 
     <div class="input-wrapper">
@@ -288,7 +310,11 @@
         "
     ></div>
 
-    <button type="button" onclick="analyzeWatermelon()">
+    <button
+        type="button"
+        id="analyze-button"
+        onclick="analyzeWatermelon()"
+    >
         Проверить спелость
     </button>
 
@@ -313,16 +339,21 @@
 
 <script>
     /*
-     * Настройки типов арбуза.
-     *
-     * volumeCoefficient:
-     * поправка формы для быстрого расчета по одному экваториальному обхвату.
-     *
-     * rindCoefficient:
-     * поправка на долю внутренней части плода.
-     *
-     * Для овального арбуза используется универсальное усредненное значение,
-     * подходящее как для относительно тонкой, так и для толстой корки.
+     * Адрес Google Apps Script.
+     * Сюда приложение отправляет результаты расчёта.
+     */
+    const GOOGLE_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbzcBB0p4jNfHxf0Z2pT5ANLaEKdj0fDyAjjexeZ4appI1o3dFKnvsIBZXGdFnfURvinkQ/exec";
+
+    /*
+     * Версия алгоритма.
+     * При изменении коэффициентов меняйте, например:
+     * 1.0 → 1.1 → 1.2.
+     */
+    const ALGORITHM_VERSION = "1.0";
+
+    /*
+     * Коэффициенты для разных типов арбуза.
      */
     const WATERMELON_TYPES = {
         oval: {
@@ -338,37 +369,50 @@
         },
 
         yellow: {
-            title: "Желтый / без семечек",
+            title: "Жёлтый / без семечек",
             volumeCoefficient: 1.0,
             rindCoefficient: 0.94
         }
     };
 
     function getSelectedType() {
-        const variety = document.getElementById("variety").value;
+        const variety =
+            document.getElementById("variety").value;
 
-        return WATERMELON_TYPES[variety] || WATERMELON_TYPES.classic;
+        return WATERMELON_TYPES[variety] ||
+            WATERMELON_TYPES.classic;
     }
 
     function getNumberValue(elementId) {
-        const value = document.getElementById(elementId).value;
+        const element =
+            document.getElementById(elementId);
 
-        if (value === "") {
+        if (!element || element.value === "") {
             return NaN;
         }
 
-        return Number(value.replace?.(",", ".") ?? value);
+        const normalizedValue =
+            String(element.value).replace(",", ".");
+
+        return Number(normalizedValue);
     }
 
     function hideResult() {
-        const resultDiv = document.getElementById("result");
+        const resultDiv =
+            document.getElementById("result");
+
         resultDiv.style.display = "none";
     }
 
     function toggleMethod() {
-        const method = document.getElementById("method").value;
-        const longSection = document.getElementById("long-section");
-        const hint = document.getElementById("hint-text");
+        const method =
+            document.getElementById("method").value;
+
+        const longSection =
+            document.getElementById("long-section");
+
+        const hint =
+            document.getElementById("hint-text");
 
         hideResult();
 
@@ -378,7 +422,7 @@
             hint.innerHTML = `
                 💡 <b>Правило быстрого замера:</b>
                 обхватите арбуз лентой строго
-                <b>поперек, по экватору</b>,
+                <b>поперёк, по экватору</b>,
                 как если бы плод стоял хвостиком вверх.
             `;
         } else {
@@ -386,8 +430,9 @@
 
             hint.innerHTML = `
                 💡 <b>Методика 3D-замера:</b>
-                укажите поперечный обхват по экватору и продольный обхват:
-                от хвостика через нижнюю часть плода и обратно к хвостику.
+                укажите поперечный обхват по экватору
+                и продольный обхват от хвостика через нижнюю
+                часть плода и обратно к хвостику.
             `;
         }
 
@@ -395,10 +440,14 @@
     }
 
     function calculateVolume() {
-        const method = document.getElementById("method").value;
-        const watermelonType = getSelectedType();
+        const method =
+            document.getElementById("method").value;
 
-        const circumference = getNumberValue("circ");
+        const watermelonType =
+            getSelectedType();
+
+        const circumference =
+            getNumberValue("circ");
 
         if (
             !Number.isFinite(circumference) ||
@@ -408,21 +457,10 @@
             return 0;
         }
 
-        /*
-         * Радиус поперечного сечения:
-         * C = 2 × π × r
-         */
-        const widthRadiusCm = circumference / (2 * Math.PI);
+        const widthRadiusCm =
+            circumference / (2 * Math.PI);
 
         if (method === "quick") {
-            /*
-             * Быстрая модель.
-             *
-             * Арбуз рассматривается как шар с поправкой на форму.
-             *
-             * Результат в литрах:
-             * 1000 см³ = 1 литр.
-             */
             const sphericalVolumeLiters =
                 (
                     (4 / 3) *
@@ -436,7 +474,8 @@
             );
         }
 
-        const longitudinalCircumference = getNumberValue("circLong");
+        const longitudinalCircumference =
+            getNumberValue("circLong");
 
         if (
             !Number.isFinite(longitudinalCircumference) ||
@@ -446,14 +485,6 @@
             return 0;
         }
 
-        /*
-         * Для эллипсоида:
-         *
-         * V = 4/3 × π × a × b × c
-         *
-         * Поперечные полуоси считаются одинаковыми.
-         * Продольная полуось вычисляется из продольного обхвата.
-         */
         const lengthRadiusCm =
             longitudinalCircumference / (2 * Math.PI);
 
@@ -469,87 +500,62 @@
     }
 
     function updateWeightHint() {
-        const hintDiv = document.getElementById("weight-hint-text");
+        const hintDiv =
+            document.getElementById("weight-hint-text");
 
         hideResult();
 
-        const volume = calculateVolume();
+        const volume =
+            calculateVolume();
 
-        if (!Number.isFinite(volume) || volume <= 0) {
+        if (
+            !Number.isFinite(volume) ||
+            volume <= 0
+        ) {
             hintDiv.style.display = "none";
             hintDiv.innerHTML = "";
             return;
         }
 
-        const watermelonType = getSelectedType();
+        const watermelonType =
+            getSelectedType();
 
-        /*
-         * Диапазон расчетной плотности мякоти:
-         * 0.90–0.98 кг/л.
-         *
-         * Вес всего плода рассчитывается с учетом коэффициента корки.
-         */
         const minimumWeight =
-            (0.90 * volume) / watermelonType.rindCoefficient;
+            (0.90 * volume) /
+            watermelonType.rindCoefficient;
 
         const maximumWeight =
-            (0.98 * volume) / watermelonType.rindCoefficient;
+            (0.98 * volume) /
+            watermelonType.rindCoefficient;
 
         hintDiv.style.display = "block";
 
         hintDiv.innerHTML = `
-            📋 <b>Расчетный диапазон веса:</b>
+            📋 <b>Расчётный диапазон веса:</b>
             от <b>${minimumWeight.toFixed(2)}</b>
             до <b>${maximumWeight.toFixed(2)} кг</b>
         `;
     }
 
-    function analyzeWatermelon() {
-        const weight = getNumberValue("weight");
-        const resultDiv = document.getElementById("result");
+    function createTestId() {
+        const timePart =
+            Date.now();
 
-        if (
-            !Number.isFinite(weight) ||
-            weight <= 0 ||
-            weight > 100
-        ) {
-            alert("Укажите корректный вес арбуза.");
-            return;
-        }
+        const randomPart =
+            Math.floor(1000 + Math.random() * 9000);
 
-        const volume = calculateVolume();
+        return `WM-${timePart}-${randomPart}`;
+    }
 
-        if (!Number.isFinite(volume) || volume <= 0) {
-            const method = document.getElementById("method").value;
-
-            if (method === "precise") {
-                alert(
-                    "Укажите поперечный и продольный обхват арбуза."
-                );
-            } else {
-                alert(
-                    "Укажите поперечный обхват арбуза по экватору."
-                );
-            }
-
-            return;
-        }
-
-        const watermelonType = getSelectedType();
-
-        /*
-         * Расчет условной плотности внутренней части плода:
-         *
-         * плотность = вес × коэффициент корки / объем
-         */
-        const density =
-            (weight * watermelonType.rindCoefficient) / volume;
-
+    function getPredictionByDensity(density) {
         let score = 2;
         let description = "";
-        let resultClass = "ripe-green";
+        let resultClass = "unripe-red";
 
-        if (density >= 0.935 && density <= 0.950) {
+        if (
+            density >= 0.935 &&
+            density <= 0.950
+        ) {
             score = 10;
             resultClass = "ripe-green";
 
@@ -558,16 +564,23 @@
                 Мякоть идеальной плотности, очень хрустящая,
                 сочная и без выраженной рыхлости.
             `;
-        } else if (density >= 0.925 && density < 0.935) {
+        } else if (
+            density >= 0.925 &&
+            density < 0.935
+        ) {
             score = 9;
             resultClass = "ripe-green";
 
             description = `
                 <b>Превосходный выбор!</b>
                 Арбуз плотный и сочный. Мякоть должна хорошо
-                хрустеть, а ее структура практически полностью сохранена.
+                хрустеть, а её структура практически полностью
+                сохранена.
             `;
-        } else if (density >= 0.910 && density < 0.925) {
+        } else if (
+            density >= 0.910 &&
+            density < 0.925
+        ) {
             score = 8;
             resultClass = "ripe-green";
 
@@ -577,17 +590,23 @@
                 может присутствовать небольшое размягчение,
                 но выраженной ватности быть не должно.
             `;
-        } else if (density >= 0.890 && density < 0.910) {
+        } else if (
+            density >= 0.890 &&
+            density < 0.910
+        ) {
             score = 7;
             resultClass = "ripe-green";
 
             description = `
                 <b>Хороший спелый арбуз.</b>
                 Мякоть должна быть сочной и достаточно сладкой,
-                однако ее структура уже может становиться мягче,
+                однако её структура уже может становиться мягче,
                 особенно ближе к семенам.
             `;
-        } else if (density >= 0.850 && density < 0.890) {
+        } else if (
+            density >= 0.850 &&
+            density < 0.890
+        ) {
             score = 6;
             resultClass = "ripe-gold";
 
@@ -596,7 +615,10 @@
                 Мякоть может быть рыхлой, а выраженный хруст —
                 частично утрачен. Возможен менее насыщенный вкус.
             `;
-        } else if (density >= 0.800 && density < 0.850) {
+        } else if (
+            density >= 0.800 &&
+            density < 0.850
+        ) {
             score = 5;
             resultClass = "unripe-red";
 
@@ -605,7 +627,10 @@
                 Возможна выраженная рыхлость или ватность мякоти.
                 Покупка такого плода связана с высоким риском.
             `;
-        } else if (density >= 0.750 && density < 0.800) {
+        } else if (
+            density >= 0.750 &&
+            density < 0.800
+        ) {
             score = 4;
             resultClass = "unripe-red";
 
@@ -619,11 +644,14 @@
             resultClass = "unripe-red";
 
             description = `
-                <b>Критически низкая расчетная плотность.</b>
+                <b>Критически низкая расчётная плотность.</b>
                 Возможны крупные внутренние пустоты,
                 разрушение мякоти или порча плода.
             `;
-        } else if (density > 0.950 && density <= 0.980) {
+        } else if (
+            density > 0.950 &&
+            density <= 0.980
+        ) {
             score = 4;
             resultClass = "unripe-red";
 
@@ -639,9 +667,138 @@
             description = `
                 <b>Высокая вероятность недозрелого плода.</b>
                 Мякоть может быть бледной, водянистой,
-                жесткой и с травянистым вкусом.
+                жёсткой и с травянистым вкусом.
             `;
         }
+
+        let predictedCategory =
+            "Не рекомендуется к покупке";
+
+        if (score >= 7) {
+            predictedCategory =
+                "Рекомендуется к покупке";
+        } else if (score === 6) {
+            predictedCategory =
+                "Пограничный результат";
+        }
+
+        return {
+            score,
+            description,
+            resultClass,
+            predictedCategory
+        };
+    }
+
+    async function sendPredictionToGoogleTable(data) {
+        try {
+            await fetch(
+                GOOGLE_SCRIPT_URL,
+                {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify(data)
+                }
+            );
+
+            return true;
+        } catch (error) {
+            console.error(
+                "Ошибка отправки данных:",
+                error
+            );
+
+            return false;
+        }
+    }
+
+    async function analyzeWatermelon() {
+        const variety =
+            document.getElementById("variety").value;
+
+        const method =
+            document.getElementById("method").value;
+
+        const weight =
+            getNumberValue("weight");
+
+        const circumference =
+            getNumberValue("circ");
+
+        const longitudinalCircumference =
+            getNumberValue("circLong");
+
+        const resultDiv =
+            document.getElementById("result");
+
+        const analyzeButton =
+            document.getElementById("analyze-button");
+
+        if (
+            !Number.isFinite(weight) ||
+            weight <= 0 ||
+            weight > 100
+        ) {
+            alert(
+                "Укажите корректный вес арбуза."
+            );
+            return;
+        }
+
+        if (
+            !Number.isFinite(circumference) ||
+            circumference < 20
+        ) {
+            alert(
+                "Укажите поперечный обхват арбуза по экватору."
+            );
+            return;
+        }
+
+        if (
+            method === "precise" &&
+            (
+                !Number.isFinite(longitudinalCircumference) ||
+                longitudinalCircumference < 20
+            )
+        ) {
+            alert(
+                "Укажите продольный обхват арбуза."
+            );
+            return;
+        }
+
+        const volume =
+            calculateVolume();
+
+        if (
+            !Number.isFinite(volume) ||
+            volume <= 0
+        ) {
+            alert(
+                "Не удалось рассчитать объём. Проверьте введённые размеры."
+            );
+            return;
+        }
+
+        const watermelonType =
+            getSelectedType();
+
+        const density =
+            (
+                weight *
+                watermelonType.rindCoefficient
+            ) / volume;
+
+        const prediction =
+            getPredictionByDensity(density);
+
+        const testId =
+            createTestId();
 
         const scoreGuide = `
             <div class="score-info">
@@ -651,16 +808,17 @@
         `;
 
         resultDiv.style.display = "block";
-        resultDiv.className = resultClass;
+        resultDiv.className =
+            prediction.resultClass;
 
         resultDiv.innerHTML = `
             <div class="score-badge">
-                📊 Оценка: ${score}/10
+                📊 Оценка: ${prediction.score}/10
             </div>
 
             <br>
 
-            Расчетная плотность мякоти:
+            Расчётная плотность мякоти:
             <b>${density.toFixed(3)} кг/л</b>
 
             <div
@@ -669,11 +827,93 @@
                     margin-top: 8px;
                 "
             >
-                <small>${description}</small>
+                <small>
+                    ${prediction.description}
+                </small>
             </div>
 
             ${scoreGuide}
+
+            <div class="test-info">
+                Номер проверки:
+                <b>${testId}</b>
+                <br>
+                Версия алгоритма:
+                <b>${ALGORITHM_VERSION}</b>
+
+                <div
+                    class="saving-status"
+                    id="saving-status"
+                >
+                    ⏳ Сохраняем результат…
+                </div>
+            </div>
         `;
+
+        analyzeButton.disabled = true;
+        analyzeButton.textContent =
+            "Сохраняем результат…";
+
+        const dataForTable = {
+            testId: testId,
+            algorithmVersion:
+                ALGORITHM_VERSION,
+
+            watermelonType:
+                watermelonType.title,
+
+            measurementMethod:
+                method === "quick"
+                    ? "Один замер"
+                    : "Два замера",
+
+            circumferenceCm:
+                Number(circumference.toFixed(2)),
+
+            longitudinalCircumferenceCm:
+                method === "precise"
+                    ? Number(
+                        longitudinalCircumference.toFixed(2)
+                    )
+                    : "",
+
+            weightKg:
+                Number(weight.toFixed(3)),
+
+            calculatedVolumeLiters:
+                Number(volume.toFixed(3)),
+
+            calculatedDensity:
+                Number(density.toFixed(4)),
+
+            predictedScore:
+                prediction.score,
+
+            predictedCategory:
+                prediction.predictedCategory
+        };
+
+        const sentSuccessfully =
+            await sendPredictionToGoogleTable(
+                dataForTable
+            );
+
+        const savingStatus =
+            document.getElementById("saving-status");
+
+        if (savingStatus) {
+            if (sentSuccessfully) {
+                savingStatus.innerHTML =
+                    "✅ Результат отправлен в базу наблюдений";
+            } else {
+                savingStatus.innerHTML =
+                    "⚠️ Не удалось отправить результат. Проверьте интернет.";
+            }
+        }
+
+        analyzeButton.disabled = false;
+        analyzeButton.textContent =
+            "Проверить ещё раз";
     }
 
     toggleMethod();
