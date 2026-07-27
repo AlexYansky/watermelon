@@ -1,2086 +1,1277 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Спелый арбуз — умный калькулятор</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
+  <!-- Официальный MAX Bridge. В Telegram и обычном браузере не мешает работе. -->
+  <script src="https://st.max.ru/js/max-web-app.js"></script>
 
-    <title>Спелый арбуз — умный калькулятор</title>
+  <style>
+    :root{
+      --green-dark:#1b5e20;
+      --green-main:#4caf50;
+      --green-medium:#81c784;
+      --green-pale:#e8f5e9;
+      --background:#f0f4f1;
+      --text-main:#2c3e50;
+      --text-muted:#7f8c8d;
+      --border:#bdc3c7;
+      --gold:#e65100;
+      --red:#b71c1c;
+    }
 
-    <style>
-        :root {
-            --green-dark: #1b5e20;
-            --green-main: #4caf50;
-            --green-medium: #81c784;
-            --green-pale: #e8f5e9;
-            --background: #f0f4f1;
-            --text-main: #2c3e50;
-            --text-muted: #7f8c8d;
-            --border: #bdc3c7;
-            --gold: #e65100;
-            --red: #b71c1c;
-        }
+    *{box-sizing:border-box}
 
-        * {
-            box-sizing: border-box;
-        }
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--background);
+      color:var(--text-main);
+      padding:15px;
+      margin:0;
+    }
 
-        body {
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
+    .card{
+      background:#fff;
+      padding:25px;
+      border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      max-width:420px;
+      margin:10px auto;
+    }
 
-            background: var(--background);
-            color: var(--text-main);
-            padding: 15px;
-            margin: 0;
-        }
+    h1{
+      text-align:center;
+      color:var(--green-dark);
+      font-size:25px;
+      margin:0 0 5px;
+    }
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            max-width: 420px;
-            margin: 10px auto;
-        }
+    .subtitle{
+      text-align:center;
+      color:#34495e;
+      font-size:14px;
+      line-height:1.45;
+      margin-bottom:10px;
+      font-weight:700;
+    }
 
-        h1 {
-            text-align: center;
-            color: var(--green-dark);
-            font-size: 25px;
-            margin: 0 0 5px;
-        }
+    .brand-motto{
+      margin:0 0 23px;
+      padding:10px 12px;
+      background:#f4f9f4;
+      border-radius:10px;
+      color:#2e7d32;
+      text-align:center;
+      font-size:12px;
+      line-height:1.45;
+      font-weight:700;
+    }
 
-        .subtitle {
-            text-align: center;
-            color: #34495e;
-            font-size: 14px;
-            line-height: 1.45;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
+    label{
+      display:block;
+      font-weight:700;
+      margin:15px 0 6px;
+      font-size:14px;
+      color:#34495e;
+    }
 
-        .brand-motto {
-            margin: 0 0 23px;
-            padding: 10px 12px;
-            background: #f4f9f4;
-            border-radius: 10px;
-            color: #2e7d32;
-            text-align: center;
-            font-size: 12px;
-            line-height: 1.45;
-            font-weight: 700;
-        }
+    select,input{
+      width:100%;
+      padding:14px 14px 14px 42px;
+      border:2px solid var(--border);
+      border-radius:10px;
+      font-size:16px;
+      outline:none;
+      background:#fff;
+    }
 
-        label {
-            display: block;
-            font-weight: 700;
-            margin: 15px 0 6px;
-            font-size: 14px;
-            color: #34495e;
-        }
+    select{padding-left:15px}
+    select:focus,input:focus{border-color:var(--green-main)}
 
-        select,
-        input {
-            width: 100%;
-            padding: 14px 14px 14px 42px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 16px;
-            outline: none;
-            background: white;
-        }
+    .input-wrapper{position:relative;width:100%}
 
-        select {
-            padding-left: 15px;
-        }
+    .input-icon{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:18px;
+      color:var(--text-muted);
+      pointer-events:none;
+    }
 
-        select:focus,
-        input:focus {
-            border-color: var(--green-main);
-        }
+    button{
+      width:100%;
+      border:none;
+      padding:15px;
+      border-radius:10px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .1s ease,opacity .2s ease;
+    }
 
-        .input-wrapper {
-            position: relative;
-            width: 100%;
-        }
+    button:active{transform:scale(.99)}
+    button:disabled{opacity:.65;cursor:wait}
 
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 18px;
-            color: var(--text-muted);
-            pointer-events: none;
-        }
+    .main-button{
+      margin-top:25px;
+      background:var(--green-main);
+      color:#fff;
+    }
 
-        button {
-            width: 100%;
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition:
-                transform 0.1s ease,
-                opacity 0.2s ease;
-        }
+    .secondary-button{
+      margin-top:12px;
+      background:#fff;
+      color:var(--green-dark);
+      border:2px solid var(--green-medium);
+    }
 
-        button:active {
-            transform: scale(0.99);
-        }
+    .muted-button{
+      margin-top:10px;
+      background:#eef2ef;
+      color:#546e5a;
+    }
 
-        button:disabled {
-            opacity: 0.65;
-            cursor: wait;
-        }
+    .hint-box{
+      background:#f4f9f4;
+      border-left:4px solid var(--green-main);
+      border-radius:4px;
+      padding:10px 14px;
+      margin:15px 0;
+      font-size:13px;
+      line-height:1.45;
+      color:#2e7d32;
+    }
 
-        .main-button {
-            margin-top: 25px;
-            background: var(--green-main);
-            color: white;
-        }
+    .input-help{
+      margin-top:5px;
+      color:var(--text-muted);
+      font-size:11px;
+      line-height:1.4;
+    }
 
-        .secondary-button {
-            margin-top: 12px;
-            background: white;
-            color: var(--green-dark);
-            border: 2px solid var(--green-medium);
-        }
+    #result{
+      margin-top:25px;
+      padding:18px;
+      border-radius:12px;
+      display:none;
+      text-align:center;
+      font-size:15px;
+      line-height:1.5;
+    }
 
-        .muted-button {
-            margin-top: 10px;
-            background: #eef2ef;
-            color: #546e5a;
-        }
+    .ripe-green{
+      background:#e8f5e9;
+      color:var(--green-dark);
+      border:2px solid var(--green-medium);
+    }
 
-        .hint-box {
-            background: #f4f9f4;
-            border-left: 4px solid var(--green-main);
-            border-radius: 4px;
-            padding: 10px 14px;
-            margin: 15px 0;
-            font-size: 13px;
-            line-height: 1.45;
-            color: #2e7d32;
-        }
+    .ripe-gold{
+      background:#fff8e1;
+      color:var(--gold);
+      border:2px solid #ffb74d;
+    }
 
-        .input-help {
-            margin-top: 5px;
-            color: var(--text-muted);
-            font-size: 11px;
-            line-height: 1.4;
-        }
+    .unripe-red{
+      background:#ffebee;
+      color:var(--red);
+      border:2px solid #e57373;
+    }
 
-        #result {
-            margin-top: 25px;
-            padding: 18px;
-            border-radius: 12px;
-            display: none;
-            text-align: center;
-            font-size: 15px;
-            line-height: 1.5;
-        }
+    .score-badge{font-size:19px;font-weight:800}
 
-        .ripe-green {
-            background: #e8f5e9;
-            color: var(--green-dark);
-            border: 2px solid var(--green-medium);
-        }
+    .score-info{
+      margin-top:14px;
+      padding-top:10px;
+      border-top:1px dashed currentColor;
+      font-size:12px;
+      opacity:.85;
+    }
 
-        .ripe-gold {
-            background: #fff8e1;
-            color: var(--gold);
-            border: 2px solid #ffb74d;
-        }
+    .test-info{
+      margin-top:13px;
+      padding:11px;
+      background:rgba(255,255,255,.7);
+      border-radius:9px;
+      font-size:12px;
+      line-height:1.5;
+    }
 
-        .unripe-red {
-            background: #ffebee;
-            color: var(--red);
-            border: 2px solid #e57373;
-        }
+    .saving-status{margin-top:7px;font-size:12px;font-weight:700}
 
-        .score-badge {
-            font-size: 19px;
-            font-weight: 800;
-        }
+    .feedback-invitation{
+      display:none;
+      margin-top:18px;
+      padding:17px;
+      background:#f8fbf8;
+      border:2px solid #a5d6a7;
+      border-radius:14px;
+      text-align:left;
+    }
 
-        .score-info {
-            margin-top: 14px;
-            padding-top: 10px;
-            border-top: 1px dashed currentColor;
-            font-size: 12px;
-            opacity: 0.85;
-        }
+    .feedback-invitation h2,
+    .reminder-card h2,
+    .feedback-form h2,
+    .thank-you-card h2,
+    .confirm-dialog h2{
+      color:var(--green-dark);
+      font-size:18px;
+      margin:0 0 8px;
+    }
 
-        .test-info {
-            margin-top: 13px;
-            padding: 11px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 9px;
-            font-size: 12px;
-            line-height: 1.5;
-        }
+    .feedback-invitation p,
+    .reminder-card p,
+    .feedback-form p,
+    .thank-you-card p,
+    .confirm-dialog p{
+      font-size:13px;
+      line-height:1.5;
+      margin:7px 0;
+    }
 
-        .saving-status {
-            margin-top: 7px;
-            font-size: 12px;
-            font-weight: 700;
-        }
+    .project-motto{font-weight:700;color:#2e7d32}
 
-        .feedback-invitation {
-            display: none;
-            margin-top: 18px;
-            padding: 17px;
-            background: #f8fbf8;
-            border: 2px solid #a5d6a7;
-            border-radius: 14px;
-            text-align: left;
-        }
+    .reminder-card{
+      display:none;
+      max-width:420px;
+      margin:10px auto;
+      padding:18px;
+      background:#fff;
+      border:2px solid var(--green-medium);
+      border-radius:16px;
+      box-shadow:0 8px 25px rgba(0,0,0,.07);
+    }
 
-        .feedback-invitation h2,
-        .reminder-card h2,
-        .feedback-form h2,
-        .thank-you-card h2 {
-            color: var(--green-dark);
-            font-size: 18px;
-            margin: 0 0 8px;
-        }
+    .pending-summary{
+      background:#f4f9f4;
+      padding:11px;
+      margin:12px 0;
+      border-radius:10px;
+      font-size:13px;
+      line-height:1.5;
+    }
 
-        .feedback-invitation p,
-        .reminder-card p,
-        .feedback-form p,
-        .thank-you-card p {
-            font-size: 13px;
-            line-height: 1.5;
-            margin: 7px 0;
-        }
+    .overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      overflow-y:auto;
+      padding:15px;
+      background:rgba(20,40,25,.58);
+    }
 
-        .project-motto {
-            font-weight: 700;
-            color: #2e7d32;
-        }
+    .feedback-form,
+    .confirm-dialog{
+      background:#fff;
+      max-width:420px;
+      margin:20px auto;
+      border-radius:20px;
+      padding:22px;
+      box-shadow:0 15px 45px rgba(0,0,0,.22);
+    }
 
-        .reminder-card {
-            display: none;
-            max-width: 420px;
-            margin: 10px auto;
-            padding: 18px;
-            background: white;
-            border: 2px solid var(--green-medium);
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
-        }
+    .confirm-data{
+      background:#f4f9f4;
+      border:2px solid #c8e6c9;
+      border-radius:12px;
+      padding:14px;
+      margin:16px 0;
+      font-size:14px;
+      line-height:1.7;
+    }
 
-        .pending-summary {
-            background: #f4f9f4;
-            padding: 11px;
-            margin: 12px 0;
-            border-radius: 10px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
+    .confirm-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
 
-        .feedback-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 15px;
-            background: rgba(20, 40, 25, 0.58);
-        }
+    .confirm-actions button{margin:0}
 
-        .feedback-form {
-            background: white;
-            max-width: 420px;
-            margin: 20px auto;
-            border-radius: 20px;
-            padding: 22px;
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.22);
-        }
+    .honesty-box{
+      background:#f4f9f4;
+      border-left:4px solid var(--green-main);
+      border-radius:5px;
+      padding:11px 13px;
+      margin:12px 0 18px;
+      color:#2e7d32;
+      font-size:13px;
+      line-height:1.5;
+    }
 
-        .honesty-box {
-            background: #f4f9f4;
-            border-left: 4px solid var(--green-main);
-            border-radius: 5px;
-            padding: 11px 13px;
-            margin: 12px 0 18px;
-            color: #2e7d32;
-            font-size: 13px;
-            line-height: 1.5;
-        }
+    .score-question{
+      font-size:15px;
+      font-weight:800;
+      text-align:center;
+      margin:18px 0 10px;
+    }
 
-        .score-question {
-            font-size: 15px;
-            font-weight: 800;
-            text-align: center;
-            margin: 18px 0 10px;
-        }
+    .score-buttons{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      margin-bottom:8px;
+    }
 
-        .score-buttons {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 8px;
-        }
+    .score-button{
+      margin:0;
+      padding:12px 4px;
+      background:#f2f6f3;
+      color:#2e7d32;
+      border:2px solid #c8e6c9;
+      border-radius:10px;
+      font-size:16px;
+    }
 
-        .score-button {
-            margin: 0;
-            padding: 12px 4px;
-            background: #f2f6f3;
-            color: #2e7d32;
-            border: 2px solid #c8e6c9;
-            border-radius: 10px;
-            font-size: 16px;
-        }
+    .score-button.selected{
+      background:var(--green-main);
+      color:#fff;
+      border-color:var(--green-main);
+      transform:scale(1.04);
+    }
 
-        .score-button.selected {
-            background: var(--green-main);
-            color: white;
-            border-color: var(--green-main);
-            transform: scale(1.04);
-        }
+    .scale-labels{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:11px;
+      color:var(--text-muted);
+      margin-bottom:18px;
+    }
 
-        .scale-labels {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 18px;
-        }
+    .city-help{
+      color:var(--text-muted);
+      font-size:12px;
+      line-height:1.4;
+      margin-top:5px;
+    }
 
-        .city-help {
-            color: var(--text-muted);
-            font-size: 12px;
-            line-height: 1.4;
-            margin-top: 5px;
-        }
+    .feedback-status{
+      display:none;
+      margin-top:12px;
+      padding:10px;
+      border-radius:8px;
+      font-size:13px;
+      text-align:center;
+      background:#f4f9f4;
+      color:#2e7d32;
+    }
 
-        .feedback-status {
-            display: none;
-            margin-top: 12px;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            text-align: center;
-            background: #f4f9f4;
-            color: #2e7d32;
-        }
+    .thank-you-card{
+      display:none;
+      text-align:center;
+      padding:12px 2px;
+    }
 
-        .thank-you-card {
-            display: none;
-            text-align: center;
-            padding: 12px 2px;
-        }
+    .thank-you-icon{font-size:50px;margin-bottom:8px}
 
-        .thank-you-icon {
-            font-size: 50px;
-            margin-bottom: 8px;
-        }
+    .privacy-note{
+      margin-top:18px;
+      padding-top:12px;
+      border-top:1px dashed var(--border);
+      font-size:11px;
+      line-height:1.45;
+      color:var(--text-muted);
+      text-align:center;
+    }
 
-        .privacy-note {
-            margin-top: 18px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--border);
-            font-size: 11px;
-            line-height: 1.45;
-            color: var(--text-muted);
-            text-align: center;
-        }
+    .footer{
+      text-align:center;
+      margin-top:30px;
+      font-size:12px;
+      color:var(--text-muted);
+      border-top:1px dashed var(--border);
+      padding-top:15px;
+    }
 
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-            color: var(--text-muted);
-            border-top: 1px dashed var(--border);
-            padding-top: 15px;
-        }
-
-        .poem-box {
-            font-style: italic;
-            color: #556b2f;
-            line-height: 1.6;
-            background: #f9fbf9;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 3px solid var(--green-medium);
-            display: inline-block;
-            text-align: left;
-        }
-    </style>
+    .poem-box{
+      font-style:italic;
+      color:#556b2f;
+      line-height:1.6;
+      background:#f9fbf9;
+      padding:12px;
+      border-radius:8px;
+      border-left:3px solid var(--green-medium);
+      display:inline-block;
+      text-align:left;
+    }
+  </style>
 </head>
 
 <body>
 
 <div class="reminder-card" id="reminder-card">
-    <h2>🍉 Уже разрезали арбуз?</h2>
-
-    <p id="reminder-description">
-        У вас осталась незавершённая проверка.
-        Реальная оценка займёт около 20 секунд
-        и поможет сделать алгоритм точнее.
-    </p>
-
-    <div
-        class="pending-summary"
-        id="pending-summary"
-    ></div>
-
-    <button
-        type="button"
-        onclick="openNextPendingFeedback()"
-    >
-        Да, оценить
-    </button>
-
-    <button
-        type="button"
-        class="muted-button"
-        onclick="hideReminderForNow()"
-    >
-        Напомнить позже
-    </button>
+  <h2>🍉 Уже разрезали арбуз?</h2>
+  <p id="reminder-description">
+    У вас осталась незавершённая проверка. Реальная оценка займёт около 20 секунд и поможет сделать алгоритм точнее.
+  </p>
+  <div class="pending-summary" id="pending-summary"></div>
+  <button type="button" onclick="openNextPendingFeedback()">Да, оценить</button>
+  <button type="button" class="muted-button" onclick="hideReminderForNow()">Напомнить позже</button>
 </div>
 
 <div class="card">
+  <h1>🍉 Спелый арбуз</h1>
+  <div class="subtitle">Умный калькулятор выбора арбуза</div>
+  <div class="brand-motto">Каждый честный результат делает следующий прогноз точнее.</div>
 
-    <h1>🍉 Спелый арбуз</h1>
+  <label for="variety">Тип арбуза</label>
+  <select id="variety" onchange="updateWeightHint()">
+    <option value="oval">Вытянутый / овальный</option>
+    <option value="classic">Обычный круглый</option>
+    <option value="yellow">Жёлтый / без семечек</option>
+  </select>
 
-    <div class="subtitle">
-        Умный калькулятор выбора арбуза
-    </div>
+  <label for="method">Режим измерения</label>
+  <select id="method" onchange="toggleMethod()">
+    <option value="quick">В один замер — быстро у прилавка</option>
+    <option value="precise">В два замера — точное 3D-моделирование</option>
+  </select>
 
-    <div class="brand-motto">
-        Каждый честный результат делает
-        следующий прогноз точнее.
-    </div>
+  <div class="hint-box" id="hint-text">
+    💡 <b>Правило быстрого замера:</b> обхватите арбуз лентой строго <b>поперёк, по экватору</b>, как если бы плод стоял хвостиком вверх.
+  </div>
 
-    <label for="variety">
-        Тип арбуза
-    </label>
+  <label for="circ">1. Обхват поперёк по экватору, см</label>
+  <div class="input-wrapper">
+    <span class="input-icon">📏</span>
+    <input type="number" id="circ" placeholder="Например: 75.0" min="25" max="180" step="0.1" inputmode="decimal" oninput="updateWeightHint()">
+  </div>
+  <div class="input-help">Допустимый диапазон: 25–180 см.</div>
 
-    <select
-        id="variety"
-        onchange="updateWeightHint()"
-    >
-        <option value="oval">
-            Вытянутый / овальный
-        </option>
-
-        <option value="classic">
-            Обычный круглый
-        </option>
-
-        <option value="yellow">
-            Жёлтый / без семечек
-        </option>
-    </select>
-
-    <label for="method">
-        Режим измерения
-    </label>
-
-    <select
-        id="method"
-        onchange="toggleMethod()"
-    >
-        <option value="quick">
-            В один замер — быстро у прилавка
-        </option>
-
-        <option value="precise">
-            В два замера — точное 3D-моделирование
-        </option>
-    </select>
-
-    <div class="hint-box" id="hint-text">
-        💡 <b>Правило быстрого замера:</b>
-        обхватите арбуз лентой строго
-        <b>поперёк, по экватору</b>,
-        как если бы плод стоял хвостиком вверх.
-    </div>
-
-    <label for="circ">
-        1. Обхват поперёк по экватору, см
-    </label>
-
+  <div id="long-section" style="display:none">
+    <label for="circLong">2. Продольный обхват от хвостика через нижнюю часть, см</label>
     <div class="input-wrapper">
-        <span class="input-icon">📏</span>
-
-        <input
-            type="number"
-            id="circ"
-            placeholder="Например: 75.0"
-            min="25"
-            max="180"
-            step="0.1"
-            inputmode="decimal"
-            oninput="updateWeightHint()"
-        >
+      <span class="input-icon">🔄</span>
+      <input type="number" id="circLong" placeholder="Например: 80.0" min="25" max="220" step="0.1" inputmode="decimal" oninput="updateWeightHint()">
     </div>
+    <div class="input-help">Допустимый диапазон: 25–220 см.</div>
+  </div>
 
-    <div class="input-help">
-        Допустимый диапазон: 25–180 см.
+  <label for="weight">Точный вес арбуза, кг</label>
+  <div class="input-wrapper">
+    <span class="input-icon">⚖️</span>
+    <input type="number" id="weight" placeholder="Например: 7.69" min="0.5" max="30" step="0.001" inputmode="decimal" oninput="hideResult()">
+  </div>
+  <div class="input-help">Указывайте вес в килограммах. Например: 8,42 кг, а не 8420.</div>
+
+  <div id="weight-hint-text" style="margin-top:7px;font-size:13px;color:#2e7d32;font-weight:600;display:none"></div>
+
+  <button type="button" id="analyze-button" class="main-button" onclick="analyzeWatermelon()">Проверить спелость</button>
+
+  <div id="result"></div>
+
+  <div class="feedback-invitation" id="feedback-invitation">
+    <h2>🍉 Когда разрежете арбуз</h2>
+    <p>Вернитесь в приложение и сообщите, насколько удачной оказалась покупка.</p>
+    <p>Для нас одинаково важны и совпадения, и расхождения с прогнозом.</p>
+    <p class="project-motto">Каждый честный результат делает следующие прогнозы немного точнее.</p>
+    <button type="button" class="secondary-button" onclick="openLatestCreatedFeedback()">Я уже разрезал арбуз — оценить</button>
+  </div>
+
+  <div class="privacy-note">
+    Данные используются в обезличенном виде только для проверки и улучшения алгоритма.
+  </div>
+
+  <div class="footer">
+    <b>Разработка: Александр Янпольский</b>
+    <br><br>
+    <div class="poem-box">
+      Арбуз и солнце — день чудесный,<br>
+      Но даже если солнца нет.<br>
+      Не перестанет быть чудесным<br>
+      Тот день, в котором есть арбуз 🍉
     </div>
-
-    <div
-        id="long-section"
-        style="display: none;"
-    >
-
-        <label for="circLong">
-            2. Продольный обхват от хвостика
-            через нижнюю часть, см
-        </label>
-
-        <div class="input-wrapper">
-            <span class="input-icon">🔄</span>
-
-            <input
-                type="number"
-                id="circLong"
-                placeholder="Например: 80.0"
-                min="25"
-                max="220"
-                step="0.1"
-                inputmode="decimal"
-                oninput="updateWeightHint()"
-            >
-        </div>
-
-        <div class="input-help">
-            Допустимый диапазон: 25–220 см.
-        </div>
-
-    </div>
-
-    <label for="weight">
-        Точный вес арбуза, кг
-    </label>
-
-    <div class="input-wrapper">
-        <span class="input-icon">⚖️</span>
-
-        <input
-            type="number"
-            id="weight"
-            placeholder="Например: 7.69"
-            min="0.5"
-            max="30"
-            step="0.001"
-            inputmode="decimal"
-            oninput="hideResult()"
-        >
-    </div>
-
-    <div class="input-help">
-        Указывайте вес в килограммах.
-        Например: 8,42 кг, а не 8420.
-    </div>
-
-    <div
-        id="weight-hint-text"
-        style="
-            margin-top: 7px;
-            font-size: 13px;
-            color: #2e7d32;
-            font-weight: 600;
-            display: none;
-        "
-    ></div>
-
-    <button
-        type="button"
-        id="analyze-button"
-        class="main-button"
-        onclick="analyzeWatermelon()"
-    >
-        Проверить спелость
-    </button>
-
-    <div id="result"></div>
-
-    <div
-        class="feedback-invitation"
-        id="feedback-invitation"
-    >
-        <h2>🍉 Когда разрежете арбуз</h2>
-
-        <p>
-            Вернитесь в приложение и сообщите,
-            насколько удачной оказалась покупка.
-        </p>
-
-        <p>
-            Для нас одинаково важны и совпадения,
-            и расхождения с прогнозом.
-        </p>
-
-        <p class="project-motto">
-            Каждый честный результат делает
-            следующие прогнозы немного точнее.
-        </p>
-
-        <button
-            type="button"
-            class="secondary-button"
-            onclick="openLatestCreatedFeedback()"
-        >
-            Я уже разрезал арбуз — оценить
-        </button>
-    </div>
-
-    <div class="privacy-note">
-        Данные используются в обезличенном виде
-        только для проверки и улучшения алгоритма.
-    </div>
-
-    <div class="footer">
-
-        <b>
-            Разработка: Александр Янпольский
-        </b>
-
-        <br><br>
-
-        <div class="poem-box">
-            Арбуз и солнце — день чудесный,<br>
-            Но даже если солнца нет.<br>
-            Не перестанет быть чудесным<br>
-            Тот день, в котором есть арбуз 🍉
-        </div>
-
-    </div>
-
+  </div>
 </div>
 
-<div
-    class="feedback-overlay"
-    id="feedback-overlay"
->
+<!-- Собственное подтверждение, совместимое с MAX, Telegram и браузерами -->
+<div class="overlay" id="confirm-overlay">
+  <div class="confirm-dialog">
+    <h2>🍉 Проверьте введённые данные</h2>
+    <p>Перед расчётом убедитесь, что обхват и вес указаны правильно.</p>
+    <div class="confirm-data" id="confirm-data"></div>
+    <div class="confirm-actions">
+      <button type="button" class="muted-button" onclick="cancelMeasurementConfirmation()">Изменить</button>
+      <button type="button" class="main-button" onclick="confirmMeasurementAndCalculate()">Всё верно</button>
+    </div>
+  </div>
+</div>
 
-    <div class="feedback-form">
+<div class="overlay" id="feedback-overlay">
+  <div class="feedback-form">
+    <div id="feedback-content">
+      <h2>🍉 Помогите сделать алгоритм точнее</h2>
+      <p>Для нас одинаково ценны любые результаты — и когда прогноз совпал, и когда оказался неточным.</p>
 
-        <div id="feedback-content">
+      <div class="honesty-box">
+        <b>Оцените арбуз таким, каким он оказался на самом деле.</b><br>
+        Представьте, что друг попросил вас рекомендовать или не рекомендовать этот арбуз.
+      </div>
 
-            <h2>
-                🍉 Помогите сделать алгоритм точнее
-            </h2>
+      <div class="pending-summary" id="feedback-test-summary"></div>
 
-            <p>
-                Для нас одинаково ценны любые результаты —
-                и когда прогноз совпал,
-                и когда оказался неточным.
-            </p>
+      <div class="score-question">Насколько удачной оказалась покупка?</div>
 
-            <div class="honesty-box">
-                <b>
-                    Оцените арбуз таким,
-                    каким он оказался на самом деле.
-                </b>
+      <div class="score-buttons">
+        <button type="button" class="score-button" data-score="1" onclick="selectScore(1)">1</button>
+        <button type="button" class="score-button" data-score="2" onclick="selectScore(2)">2</button>
+        <button type="button" class="score-button" data-score="3" onclick="selectScore(3)">3</button>
+        <button type="button" class="score-button" data-score="4" onclick="selectScore(4)">4</button>
+        <button type="button" class="score-button" data-score="5" onclick="selectScore(5)">5</button>
+        <button type="button" class="score-button" data-score="6" onclick="selectScore(6)">6</button>
+        <button type="button" class="score-button" data-score="7" onclick="selectScore(7)">7</button>
+        <button type="button" class="score-button" data-score="8" onclick="selectScore(8)">8</button>
+        <button type="button" class="score-button" data-score="9" onclick="selectScore(9)">9</button>
+        <button type="button" class="score-button" data-score="10" onclick="selectScore(10)">10</button>
+      </div>
 
-                <br>
+      <div class="scale-labels">
+        <span>1 — очень неудачная</span>
+        <span>10 — отличная</span>
+      </div>
 
-                Представьте, что друг попросил вас
-                рекомендовать или не рекомендовать этот арбуз.
-            </div>
+      <label for="city">📍 Где был куплен арбуз?</label>
+      <div class="input-wrapper">
+        <span class="input-icon">🏙️</span>
+        <input type="text" id="city" maxlength="100" placeholder="Например: Астрахань" autocomplete="address-level2">
+      </div>
+      <div class="city-help">Необязательно. Помогает оценить географию проекта.</div>
 
-            <div
-                class="pending-summary"
-                id="feedback-test-summary"
-            ></div>
+      <button type="button" class="main-button" id="send-feedback-button" onclick="submitFeedback()">Отправить наблюдение</button>
+      <button type="button" class="muted-button" onclick="closeFeedbackForm()">Вернуться</button>
 
-            <div class="score-question">
-                Насколько удачной оказалась покупка?
-            </div>
-
-            <div class="score-buttons">
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="1"
-                    onclick="selectScore(1)"
-                >1</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="2"
-                    onclick="selectScore(2)"
-                >2</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="3"
-                    onclick="selectScore(3)"
-                >3</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="4"
-                    onclick="selectScore(4)"
-                >4</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="5"
-                    onclick="selectScore(5)"
-                >5</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="6"
-                    onclick="selectScore(6)"
-                >6</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="7"
-                    onclick="selectScore(7)"
-                >7</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="8"
-                    onclick="selectScore(8)"
-                >8</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="9"
-                    onclick="selectScore(9)"
-                >9</button>
-
-                <button
-                    type="button"
-                    class="score-button"
-                    data-score="10"
-                    onclick="selectScore(10)"
-                >10</button>
-
-            </div>
-
-            <div class="scale-labels">
-                <span>1 — очень неудачная</span>
-                <span>10 — отличная</span>
-            </div>
-
-            <label for="city">
-                📍 Где был куплен арбуз?
-            </label>
-
-            <div class="input-wrapper">
-                <span class="input-icon">🏙️</span>
-
-                <input
-                    type="text"
-                    id="city"
-                    maxlength="100"
-                    placeholder="Например: Астрахань"
-                    autocomplete="address-level2"
-                >
-            </div>
-
-            <div class="city-help">
-                Необязательно.
-                Помогает оценить географию проекта.
-            </div>
-
-            <button
-                type="button"
-                class="main-button"
-                id="send-feedback-button"
-                onclick="submitFeedback()"
-            >
-                Отправить наблюдение
-            </button>
-
-            <button
-                type="button"
-                class="muted-button"
-                onclick="closeFeedbackForm()"
-            >
-                Вернуться
-            </button>
-
-            <div
-                class="feedback-status"
-                id="feedback-status"
-            ></div>
-
-        </div>
-
-        <div
-            class="thank-you-card"
-            id="thank-you-card"
-        >
-            <div class="thank-you-icon">
-                🍉
-            </div>
-
-            <h2>Спасибо!</h2>
-
-            <p>
-                Ваше наблюдение сохранено.
-            </p>
-
-            <p>
-                Благодаря вашей честной оценке
-                алгоритм стал немного точнее.
-            </p>
-
-            <p class="project-motto">
-                Каждый честный результат делает
-                следующий прогноз немного точнее.
-            </p>
-
-            <button
-                type="button"
-                class="main-button"
-                onclick="finishFeedback()"
-            >
-                Готово
-            </button>
-        </div>
-
+      <div class="feedback-status" id="feedback-status"></div>
     </div>
 
+    <div class="thank-you-card" id="thank-you-card">
+      <div class="thank-you-icon">🍉</div>
+      <h2>Спасибо!</h2>
+      <p>Ваше наблюдение сохранено.</p>
+      <p>Благодаря вашей честной оценке алгоритм стал немного точнее.</p>
+      <p class="project-motto">Каждый честный результат делает следующий прогноз немного точнее.</p>
+      <button type="button" class="main-button" onclick="finishFeedback()">Готово</button>
+    </div>
+  </div>
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL =
-        "https://script.google.com/macros/s/AKfycbzcBB0p4jNfHxf0Z2pT5ANLaEKdj0fDyAjjexeZ4appI1o3dFKnvsIBZXGdFnfURvinkQ/exec";
+  const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbzcBB0p4jNfHxf0Z2pT5ANLaEKdj0fDyAjjexeZ4appI1o3dFKnvsIBZXGdFnfURvinkQ/exec";
 
-    const ALGORITHM_VERSION = "1.1";
+  const ALGORITHM_VERSION = "1.2";
+  const PENDING_TESTS_STORAGE_KEY = "watermelonPendingTests";
+  const SAVED_CITY_STORAGE_KEY = "watermelonSavedCity";
 
-    const PENDING_TESTS_STORAGE_KEY =
-        "watermelonPendingTests";
+  let selectedActualScore = null;
+  let activeFeedbackTestId = null;
+  let latestCreatedTestId = null;
+  let pendingCalculation = null;
 
-    const SAVED_CITY_STORAGE_KEY =
-        "watermelonSavedCity";
+  const WATERMELON_TYPES = {
+    oval: {
+      title: "Вытянутый / овальный",
+      volumeCoefficient: 1.095,
+      rindCoefficient: 0.88
+    },
+    classic: {
+      title: "Обычный круглый",
+      volumeCoefficient: 1.0,
+      rindCoefficient: 0.91
+    },
+    yellow: {
+      title: "Жёлтый / без семечек",
+      volumeCoefficient: 1.0,
+      rindCoefficient: 0.94
+    }
+  };
 
-    let selectedActualScore = null;
-    let activeFeedbackTestId = null;
-    let latestCreatedTestId = null;
+  function getSelectedType() {
+    const variety = document.getElementById("variety").value;
+    return WATERMELON_TYPES[variety] || WATERMELON_TYPES.classic;
+  }
 
-    const WATERMELON_TYPES = {
-        oval: {
-            title: "Вытянутый / овальный",
-            volumeCoefficient: 1.095,
-            rindCoefficient: 0.88
+  function getNumberValue(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element || element.value === "") return NaN;
+    return Number(String(element.value).replace(",", "."));
+  }
+
+  function hideResult() {
+    document.getElementById("result").style.display = "none";
+    document.getElementById("feedback-invitation").style.display = "none";
+  }
+
+  function toggleMethod() {
+    const method = document.getElementById("method").value;
+    const longSection = document.getElementById("long-section");
+    const hint = document.getElementById("hint-text");
+
+    hideResult();
+
+    if (method === "quick") {
+      longSection.style.display = "none";
+      hint.innerHTML =
+        '💡 <b>Правило быстрого замера:</b> обхватите арбуз лентой строго <b>поперёк, по экватору</b>, как если бы плод стоял хвостиком вверх.';
+    } else {
+      longSection.style.display = "block";
+      hint.innerHTML =
+        '💡 <b>Методика 3D-замера:</b> укажите поперечный обхват по экватору и продольный обхват от хвостика через нижнюю часть плода и обратно.';
+    }
+
+    updateWeightHint();
+  }
+
+  function calculateVolume() {
+    const method = document.getElementById("method").value;
+    const watermelonType = getSelectedType();
+    const circumference = getNumberValue("circ");
+
+    if (!Number.isFinite(circumference) || circumference < 25 || circumference > 180) {
+      return 0;
+    }
+
+    const widthRadiusCm = circumference / (2 * Math.PI);
+
+    if (method === "quick") {
+      const sphericalVolumeLiters =
+        ((4 / 3) * Math.PI * Math.pow(widthRadiusCm, 3)) / 1000;
+
+      return sphericalVolumeLiters * watermelonType.volumeCoefficient;
+    }
+
+    const longitudinalCircumference = getNumberValue("circLong");
+
+    if (
+      !Number.isFinite(longitudinalCircumference) ||
+      longitudinalCircumference < 25 ||
+      longitudinalCircumference > 220
+    ) {
+      return 0;
+    }
+
+    const lengthRadiusCm = longitudinalCircumference / (2 * Math.PI);
+
+    return (
+      ((4 / 3) *
+        Math.PI *
+        Math.pow(widthRadiusCm, 2) *
+        lengthRadiusCm) /
+      1000
+    );
+  }
+
+  function updateWeightHint() {
+    const hintDiv = document.getElementById("weight-hint-text");
+    hideResult();
+
+    const volume = calculateVolume();
+
+    if (!Number.isFinite(volume) || volume <= 0) {
+      hintDiv.style.display = "none";
+      hintDiv.innerHTML = "";
+      return;
+    }
+
+    const watermelonType = getSelectedType();
+    const minimumWeight = (0.90 * volume) / watermelonType.rindCoefficient;
+    const maximumWeight = (0.98 * volume) / watermelonType.rindCoefficient;
+
+    hintDiv.style.display = "block";
+    hintDiv.innerHTML =
+      `📋 <b>Расчётный диапазон веса:</b> от <b>${minimumWeight.toFixed(2)}</b> до <b>${maximumWeight.toFixed(2)} кг</b>`;
+  }
+
+  function createTestId() {
+    const randomPart = Math.floor(1000 + Math.random() * 9000);
+    return "WM-" + Date.now() + "-" + randomPart;
+  }
+
+  function validateWatermelonMeasurements({
+    method,
+    circumference,
+    longitudinalCircumference,
+    weight,
+    volume,
+    density
+  }) {
+    if (!Number.isFinite(circumference) || circumference < 25 || circumference > 180) {
+      return {
+        valid: false,
+        fieldId: "circ",
+        message: "Проверьте поперечный обхват. Допустимый диапазон — от 25 до 180 см."
+      };
+    }
+
+    if (
+      method === "precise" &&
+      (!Number.isFinite(longitudinalCircumference) ||
+        longitudinalCircumference < 25 ||
+        longitudinalCircumference > 220)
+    ) {
+      return {
+        valid: false,
+        fieldId: "circLong",
+        message: "Проверьте продольный обхват. Допустимый диапазон — от 25 до 220 см."
+      };
+    }
+
+    if (!Number.isFinite(weight) || weight < 0.5 || weight > 30) {
+      return {
+        valid: false,
+        fieldId: "weight",
+        message: "Проверьте вес. Укажите значение от 0,5 до 30 кг."
+      };
+    }
+
+    if (!Number.isFinite(volume) || volume <= 0) {
+      return {
+        valid: false,
+        fieldId: "circ",
+        message: "Не удалось рассчитать объём. Проверьте введённые размеры."
+      };
+    }
+
+    const wholeFruitDensity = weight / volume;
+
+    if (wholeFruitDensity < 0.60 || wholeFruitDensity > 1.25) {
+      return {
+        valid: false,
+        fieldId: "weight",
+        message:
+          "Вес не соответствует указанному размеру арбуза. Возможно, пропущена запятая или неверно измерен обхват."
+      };
+    }
+
+    if (!Number.isFinite(density) || density < 0.50 || density > 1.15) {
+      return {
+        valid: false,
+        fieldId: "weight",
+        message:
+          "Получился физически маловероятный результат. Проверьте вес и обхват арбуза."
+      };
+    }
+
+    return { valid: true };
+  }
+
+  function getPredictionByDensity(density) {
+    let score = 2;
+    let description = "";
+    let resultClass = "unripe-red";
+
+    if (density >= 0.935 && density <= 0.950) {
+      score = 10;
+      resultClass = "ripe-green";
+      description =
+        "<b>Абсолютный мировой эталон!</b> Мякоть идеальной плотности, очень хрустящая, сочная и без выраженной рыхлости.";
+    } else if (density >= 0.925 && density < 0.935) {
+      score = 9;
+      resultClass = "ripe-green";
+      description =
+        "<b>Превосходный выбор!</b> Арбуз плотный и сочный. Мякоть должна хорошо хрустеть.";
+    } else if (density >= 0.910 && density < 0.925) {
+      score = 8;
+      resultClass = "ripe-green";
+      description =
+        "<b>Отличный, очень вкусный плод!</b> Ожидается высокая сочность без выраженной ватности.";
+    } else if (density >= 0.890 && density < 0.910) {
+      score = 7;
+      resultClass = "ripe-green";
+      description =
+        "<b>Хороший спелый арбуз.</b> Мякоть должна быть сочной, но может становиться мягче ближе к семенам.";
+    } else if (density >= 0.850 && density < 0.890) {
+      score = 6;
+      resultClass = "ripe-gold";
+      description =
+        "<b>Пограничная стадия.</b> Мякоть может быть рыхлой, а выраженный хруст — частично утрачен.";
+    } else if (density >= 0.800 && density < 0.850) {
+      score = 5;
+      resultClass = "unripe-red";
+      description =
+        "<b>Вероятно перезрелый арбуз.</b> Возможна выраженная рыхлость или ватность мякоти.";
+    } else if (density >= 0.750 && density < 0.800) {
+      score = 4;
+      resultClass = "unripe-red";
+      description =
+        "<b>Вероятно старый или усыхающий плод.</b> Возможны пустоты, трещины и снижение сочности.";
+    } else if (density < 0.750) {
+      score = 2;
+      resultClass = "unripe-red";
+      description =
+        "<b>Критически низкая расчётная плотность.</b> Возможны крупные пустоты или разрушение мякоти.";
+    } else if (density > 0.950 && density <= 0.980) {
+      score = 4;
+      resultClass = "unripe-red";
+      description =
+        "<b>Возможно, арбуз немного недозрел.</b> Мякоть может быть плотной и недостаточно сладкой.";
+    } else if (density > 0.980) {
+      score = 3;
+      resultClass = "unripe-red";
+      description =
+        "<b>Высокая вероятность недозрелого плода.</b> Мякоть может быть бледной, жёсткой и травянистой.";
+    }
+
+    let predictedCategory = "Не рекомендуется к покупке";
+
+    if (score >= 7) {
+      predictedCategory = "Рекомендуется к покупке";
+    } else if (score === 6) {
+      predictedCategory = "Пограничный результат";
+    }
+
+    return {
+      score,
+      description,
+      resultClass,
+      predictedCategory
+    };
+  }
+
+  async function postDataToGoogle(data) {
+    try {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
         },
+        body: JSON.stringify(data)
+      });
 
-        classic: {
-            title: "Обычный круглый",
-            volumeCoefficient: 1.0,
-            rindCoefficient: 0.91
-        },
+      return true;
+    } catch (error) {
+      console.error("Ошибка отправки данных:", error);
+      return false;
+    }
+  }
 
-        yellow: {
-            title: "Жёлтый / без семечек",
-            volumeCoefficient: 1.0,
-            rindCoefficient: 0.94
-        }
+  function showInlineError(message, fieldId) {
+    alert(message);
+    const problemField = document.getElementById(fieldId);
+    if (problemField) {
+      problemField.focus();
+      if (typeof problemField.select === "function") {
+        problemField.select();
+      }
+    }
+  }
+
+  function analyzeWatermelon() {
+    const method = document.getElementById("method").value;
+    const weight = getNumberValue("weight");
+    const circumference = getNumberValue("circ");
+    const longitudinalCircumference = getNumberValue("circLong");
+    const volume = calculateVolume();
+    const watermelonType = getSelectedType();
+    const density =
+      Number.isFinite(volume) && volume > 0
+        ? (weight * watermelonType.rindCoefficient) / volume
+        : NaN;
+
+    const validation = validateWatermelonMeasurements({
+      method,
+      circumference,
+      longitudinalCircumference,
+      weight,
+      volume,
+      density
+    });
+
+    if (!validation.valid) {
+      showInlineError(validation.message, validation.fieldId);
+      return;
+    }
+
+    pendingCalculation = {
+      method,
+      weight,
+      circumference,
+      longitudinalCircumference,
+      volume,
+      watermelonType,
+      density
     };
 
-
-    function getSelectedType() {
-        const variety =
-            document.getElementById("variety").value;
-
-        return (
-            WATERMELON_TYPES[variety] ||
-            WATERMELON_TYPES.classic
-        );
-    }
-
-
-    function getNumberValue(elementId) {
-        const element =
-            document.getElementById(elementId);
-
-        if (!element || element.value === "") {
-            return NaN;
-        }
-
-        return Number(
-            String(element.value)
-                .replace(",", ".")
-        );
-    }
-
-
-    function hideResult() {
-        document
-            .getElementById("result")
-            .style.display = "none";
-
-        document
-            .getElementById("feedback-invitation")
-            .style.display = "none";
-    }
-
-
-    function toggleMethod() {
-        const method =
-            document.getElementById("method").value;
-
-        const longSection =
-            document.getElementById("long-section");
-
-        const hint =
-            document.getElementById("hint-text");
-
-        hideResult();
-
-        if (method === "quick") {
-            longSection.style.display = "none";
-
-            hint.innerHTML = `
-                💡 <b>Правило быстрого замера:</b>
-                обхватите арбуз лентой строго
-                <b>поперёк, по экватору</b>,
-                как если бы плод стоял хвостиком вверх.
-            `;
-        } else {
-            longSection.style.display = "block";
-
-            hint.innerHTML = `
-                💡 <b>Методика 3D-замера:</b>
-                укажите поперечный обхват по экватору
-                и продольный обхват от хвостика
-                через нижнюю часть плода и обратно.
-            `;
-        }
-
-        updateWeightHint();
-    }
-
-
-    function calculateVolume() {
-        const method =
-            document.getElementById("method").value;
-
-        const watermelonType =
-            getSelectedType();
-
-        const circumference =
-            getNumberValue("circ");
-
-        if (
-            !Number.isFinite(circumference) ||
-            circumference < 25 ||
-            circumference > 180
-        ) {
-            return 0;
-        }
-
-        const widthRadiusCm =
-            circumference / (2 * Math.PI);
-
-        if (method === "quick") {
-            const sphericalVolumeLiters =
-                (
-                    (4 / 3) *
-                    Math.PI *
-                    Math.pow(widthRadiusCm, 3)
-                ) / 1000;
-
-            return (
-                sphericalVolumeLiters *
-                watermelonType.volumeCoefficient
-            );
-        }
-
-        const longitudinalCircumference =
-            getNumberValue("circLong");
-
-        if (
-            !Number.isFinite(longitudinalCircumference) ||
-            longitudinalCircumference < 25 ||
-            longitudinalCircumference > 220
-        ) {
-            return 0;
-        }
-
-        const lengthRadiusCm =
-            longitudinalCircumference /
-            (2 * Math.PI);
-
-        return (
-            (4 / 3) *
-            Math.PI *
-            Math.pow(widthRadiusCm, 2) *
-            lengthRadiusCm
-        ) / 1000;
-    }
-
-
-    function updateWeightHint() {
-        const hintDiv =
-            document.getElementById(
-                "weight-hint-text"
-            );
-
-        hideResult();
-
-        const volume =
-            calculateVolume();
-
-        if (
-            !Number.isFinite(volume) ||
-            volume <= 0
-        ) {
-            hintDiv.style.display = "none";
-            hintDiv.innerHTML = "";
-            return;
-        }
-
-        const watermelonType =
-            getSelectedType();
-
-        const minimumWeight =
-            (0.90 * volume) /
-            watermelonType.rindCoefficient;
-
-        const maximumWeight =
-            (0.98 * volume) /
-            watermelonType.rindCoefficient;
-
-        hintDiv.style.display = "block";
-
-        hintDiv.innerHTML = `
-            📋 <b>Расчётный диапазон веса:</b>
-            от <b>${minimumWeight.toFixed(2)}</b>
-            до <b>${maximumWeight.toFixed(2)} кг</b>
-        `;
-    }
-
-
-    function createTestId() {
-        const randomPart =
-            Math.floor(
-                1000 + Math.random() * 9000
-            );
-
-        return (
-            "WM-" +
-            Date.now() +
-            "-" +
-            randomPart
-        );
-    }
-
-
-    function validateWatermelonMeasurements({
-        method,
-        circumference,
-        longitudinalCircumference,
-        weight,
-        volume,
-        density
-    }) {
-        if (
-            !Number.isFinite(circumference) ||
-            circumference < 25 ||
-            circumference > 180
-        ) {
-            return {
-                valid: false,
-                fieldId: "circ",
-                message:
-                    "Проверьте поперечный обхват. Допустимый диапазон — от 25 до 180 см."
-            };
-        }
-
-        if (
-            method === "precise" &&
-            (
-                !Number.isFinite(
-                    longitudinalCircumference
-                ) ||
-                longitudinalCircumference < 25 ||
-                longitudinalCircumference > 220
-            )
-        ) {
-            return {
-                valid: false,
-                fieldId: "circLong",
-                message:
-                    "Проверьте продольный обхват. Допустимый диапазон — от 25 до 220 см."
-            };
-        }
-
-        if (
-            !Number.isFinite(weight) ||
-            weight < 0.5 ||
-            weight > 30
-        ) {
-            return {
-                valid: false,
-                fieldId: "weight",
-                message:
-                    "Проверьте вес. Укажите значение от 0,5 до 30 кг."
-            };
-        }
-
-        if (
-            !Number.isFinite(volume) ||
-            volume <= 0
-        ) {
-            return {
-                valid: false,
-                fieldId: "circ",
-                message:
-                    "Не удалось рассчитать объём. Проверьте введённые размеры."
-            };
-        }
-
-        const wholeFruitDensity =
-            weight / volume;
-
-        if (
-            wholeFruitDensity < 0.60 ||
-            wholeFruitDensity > 1.25
-        ) {
-            return {
-                valid: false,
-                fieldId: "weight",
-                message:
-                    "Вес не соответствует указанному размеру арбуза. Возможно, пропущена запятая или неверно измерен обхват."
-            };
-        }
-
-        if (
-            !Number.isFinite(density) ||
-            density < 0.50 ||
-            density > 1.15
-        ) {
-            return {
-                valid: false,
-                fieldId: "weight",
-                message:
-                    "Получился физически маловероятный результат. Проверьте вес и обхват арбуза."
-            };
-        }
-
-        return {
-            valid: true
-        };
-    }
-
-
-    function getPredictionByDensity(density) {
-        let score = 2;
-        let description = "";
-        let resultClass = "unripe-red";
-
-        if (
-            density >= 0.935 &&
-            density <= 0.950
-        ) {
-            score = 10;
-            resultClass = "ripe-green";
-
-            description =
-                "<b>Абсолютный мировой эталон!</b> Мякоть идеальной плотности, очень хрустящая, сочная и без выраженной рыхлости.";
-        } else if (
-            density >= 0.925 &&
-            density < 0.935
-        ) {
-            score = 9;
-            resultClass = "ripe-green";
-
-            description =
-                "<b>Превосходный выбор!</b> Арбуз плотный и сочный. Мякоть должна хорошо хрустеть.";
-        } else if (
-            density >= 0.910 &&
-            density < 0.925
-        ) {
-            score = 8;
-            resultClass = "ripe-green";
-
-            description =
-                "<b>Отличный, очень вкусный плод!</b> Ожидается высокая сочность без выраженной ватности.";
-        } else if (
-            density >= 0.890 &&
-            density < 0.910
-        ) {
-            score = 7;
-            resultClass = "ripe-green";
-
-            description =
-                "<b>Хороший спелый арбуз.</b> Мякоть должна быть сочной, но может становиться мягче ближе к семенам.";
-        } else if (
-            density >= 0.850 &&
-            density < 0.890
-        ) {
-            score = 6;
-            resultClass = "ripe-gold";
-
-            description =
-                "<b>Пограничная стадия.</b> Мякоть может быть рыхлой, а выраженный хруст — частично утрачен.";
-        } else if (
-            density >= 0.800 &&
-            density < 0.850
-        ) {
-            score = 5;
-            resultClass = "unripe-red";
-
-            description =
-                "<b>Вероятно перезрелый арбуз.</b> Возможна выраженная рыхлость или ватность мякоти.";
-        } else if (
-            density >= 0.750 &&
-            density < 0.800
-        ) {
-            score = 4;
-            resultClass = "unripe-red";
-
-            description =
-                "<b>Вероятно старый или усыхающий плод.</b> Возможны пустоты, трещины и снижение сочности.";
-        } else if (
-            density < 0.750
-        ) {
-            score = 2;
-            resultClass = "unripe-red";
-
-            description =
-                "<b>Критически низкая расчётная плотность.</b> Возможны крупные пустоты или разрушение мякоти.";
-        } else if (
-            density > 0.950 &&
-            density <= 0.980
-        ) {
-            score = 4;
-            resultClass = "unripe-red";
-
-            description =
-                "<b>Возможно, арбуз немного недозрел.</b> Мякоть может быть плотной и недостаточно сладкой.";
-        } else if (
-            density > 0.980
-        ) {
-            score = 3;
-            resultClass = "unripe-red";
-
-            description =
-                "<b>Высокая вероятность недозрелого плода.</b> Мякоть может быть бледной, жёсткой и травянистой.";
-        }
-
-        let predictedCategory =
-            "Не рекомендуется к покупке";
-
-        if (score >= 7) {
-            predictedCategory =
-                "Рекомендуется к покупке";
-        } else if (score === 6) {
-            predictedCategory =
-                "Пограничный результат";
-        }
-
-        return {
-            score: score,
-            description: description,
-            resultClass: resultClass,
-            predictedCategory:
-                predictedCategory
-        };
-    }
-
-
-    async function postDataToGoogle(data) {
-        try {
-            await fetch(
-                GOOGLE_SCRIPT_URL,
-                {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type":
-                            "text/plain;charset=utf-8"
-                    },
-                    body: JSON.stringify(data)
-                }
-            );
-
-            return true;
-        } catch (error) {
-            console.error(
-                "Ошибка отправки данных:",
-                error
-            );
-
-            return false;
-        }
-    }
-
-
-    async function analyzeWatermelon() {
-        const method =
-            document.getElementById("method").value;
-
-        const weight =
-            getNumberValue("weight");
-
-        const circumference =
-            getNumberValue("circ");
-
-        const longitudinalCircumference =
-            getNumberValue("circLong");
-
-        const resultDiv =
-            document.getElementById("result");
-
-        const analyzeButton =
-            document.getElementById(
-                "analyze-button"
-            );
-
-        const volume =
-            calculateVolume();
-
-        const watermelonType =
-            getSelectedType();
-
-        const density =
-            (
-                weight *
-                watermelonType.rindCoefficient
-            ) / volume;
-
-        const validation =
-            validateWatermelonMeasurements({
-                method: method,
-                circumference: circumference,
-                longitudinalCircumference:
-                    longitudinalCircumference,
-                weight: weight,
-                volume: volume,
-                density: density
-            });
-
-        if (!validation.valid) {
-            alert(validation.message);
-
-            const problemField =
-                document.getElementById(
-                    validation.fieldId
-                );
-
-            if (problemField) {
-                problemField.focus();
-                problemField.select();
-            }
-
-            return;
-        }
-
-        const measurementSummary =
-            method === "precise"
-                ? (
-                    "Поперечный обхват: " +
-                    circumference.toFixed(1) +
-                    " см\n" +
-
-                    "Продольный обхват: " +
-                    longitudinalCircumference.toFixed(1) +
-                    " см\n" +
-
-                    "Вес: " +
-                    weight.toFixed(3) +
-                    " кг"
-                )
-                : (
-                    "Поперечный обхват: " +
-                    circumference.toFixed(1) +
-                    " см\n" +
-
-                    "Вес: " +
-                    weight.toFixed(3) +
-                    " кг"
-                );
-
-        const confirmed =
-            window.confirm(
-                "Проверьте введённые данные:\n\n" +
-                measurementSummary +
-                "\n\nВсё указано верно?"
-            );
-
-        if (!confirmed) {
-            return;
-        }
-
-        const prediction =
-            getPredictionByDensity(density);
-
-        const testId =
-            createTestId();
-
-        latestCreatedTestId =
-            testId;
-
-        resultDiv.style.display =
-            "block";
-
-        resultDiv.className =
-            prediction.resultClass;
-
-        resultDiv.innerHTML = `
-            <div class="score-badge">
-                📊 Оценка:
-                ${prediction.score}/10
-            </div>
-
-            <br>
-
-            Расчётная плотность мякоти:
-            <b>${density.toFixed(3)} кг/л</b>
-
-            <div
-                style="
-                    text-align: left;
-                    margin-top: 10px;
-                "
-            >
-                ${prediction.description}
-            </div>
-
-            <div class="score-info">
-                💡 Арбузы с оценкой 7/10 и выше
-                считаются оптимальными для покупки.
-            </div>
-
-            <div class="test-info">
-                Номер проверки:
-                <b>${testId}</b>
-
-                <br>
-
-                Версия алгоритма:
-                <b>${ALGORITHM_VERSION}</b>
-
-                <div
-                    class="saving-status"
-                    id="saving-status"
-                >
-                    ⏳ Сохраняем результат…
-                </div>
-            </div>
+    const confirmData = document.getElementById("confirm-data");
+
+    confirmData.innerHTML =
+      method === "precise"
+        ? `
+          Тип: <b>${watermelonType.title}</b><br>
+          Поперечный обхват: <b>${circumference.toFixed(1)} см</b><br>
+          Продольный обхват: <b>${longitudinalCircumference.toFixed(1)} см</b><br>
+          Вес: <b>${weight.toFixed(3)} кг</b>
+        `
+        : `
+          Тип: <b>${watermelonType.title}</b><br>
+          Поперечный обхват: <b>${circumference.toFixed(1)} см</b><br>
+          Вес: <b>${weight.toFixed(3)} кг</b>
         `;
 
-        document
-            .getElementById(
-                "feedback-invitation"
-            )
-            .style.display = "block";
+    document.getElementById("confirm-overlay").style.display = "block";
+    document.body.style.overflow = "hidden";
+  }
 
-        analyzeButton.disabled = true;
+  function cancelMeasurementConfirmation() {
+    document.getElementById("confirm-overlay").style.display = "none";
+    document.body.style.overflow = "";
+    pendingCalculation = null;
+  }
 
-        analyzeButton.textContent =
-            "Сохраняем результат…";
+  async function confirmMeasurementAndCalculate() {
+    if (!pendingCalculation) return;
 
-        const pendingTest = {
-            testId: testId,
+    document.getElementById("confirm-overlay").style.display = "none";
+    document.body.style.overflow = "";
 
-            createdAt:
-                new Date().toISOString(),
+    const calculation = pendingCalculation;
+    pendingCalculation = null;
 
-            watermelonType:
-                watermelonType.title,
+    await performCalculation(calculation);
+  }
 
-            weightKg:
-                Number(weight.toFixed(3)),
+  async function performCalculation({
+    method,
+    weight,
+    circumference,
+    longitudinalCircumference,
+    volume,
+    watermelonType,
+    density
+  }) {
+    const resultDiv = document.getElementById("result");
+    const analyzeButton = document.getElementById("analyze-button");
+    const prediction = getPredictionByDensity(density);
+    const testId = createTestId();
 
-            predictedScore:
-                prediction.score,
+    latestCreatedTestId = testId;
 
-            density:
-                Number(density.toFixed(4))
-        };
+    resultDiv.style.display = "block";
+    resultDiv.className = prediction.resultClass;
 
-        addPendingTest(pendingTest);
+    resultDiv.innerHTML = `
+      <div class="score-badge">📊 Оценка: ${prediction.score}/10</div>
+      <br>
+      Расчётная плотность мякоти:
+      <b>${density.toFixed(3)} кг/л</b>
 
-        const dataForTable = {
-            action:
-                "save_prediction",
+      <div style="text-align:left;margin-top:10px">
+        ${prediction.description}
+      </div>
 
-            testId:
-                testId,
+      <div class="score-info">
+        💡 Арбузы с оценкой 7/10 и выше считаются оптимальными для покупки.
+      </div>
 
-            algorithmVersion:
-                ALGORITHM_VERSION,
+      <div class="test-info">
+        Номер проверки:
+        <b>${testId}</b>
+        <br>
+        Версия алгоритма:
+        <b>${ALGORITHM_VERSION}</b>
 
-            watermelonType:
-                watermelonType.title,
+        <div class="saving-status" id="saving-status">
+          ⏳ Сохраняем результат…
+        </div>
+      </div>
+    `;
 
-            measurementMethod:
-                method === "quick"
-                    ? "Один замер"
-                    : "Два замера",
+    document.getElementById("feedback-invitation").style.display = "block";
 
-            circumferenceCm:
-                Number(
-                    circumference.toFixed(2)
-                ),
+    analyzeButton.disabled = true;
+    analyzeButton.textContent = "Сохраняем результат…";
 
-            longitudinalCircumferenceCm:
-                method === "precise"
-                    ? Number(
-                        longitudinalCircumference
-                            .toFixed(2)
-                    )
-                    : "",
+    const pendingTest = {
+      testId,
+      createdAt: new Date().toISOString(),
+      watermelonType: watermelonType.title,
+      weightKg: Number(weight.toFixed(3)),
+      predictedScore: prediction.score,
+      density: Number(density.toFixed(4))
+    };
 
-            weightKg:
-                Number(
-                    weight.toFixed(3)
-                ),
+    addPendingTest(pendingTest);
 
-            calculatedVolumeLiters:
-                Number(
-                    volume.toFixed(3)
-                ),
+    const dataForTable = {
+      action: "save_prediction",
+      testId,
+      algorithmVersion: ALGORITHM_VERSION,
+      watermelonType: watermelonType.title,
+      measurementMethod: method === "quick" ? "Один замер" : "Два замера",
+      circumferenceCm: Number(circumference.toFixed(2)),
+      longitudinalCircumferenceCm:
+        method === "precise"
+          ? Number(longitudinalCircumference.toFixed(2))
+          : "",
+      weightKg: Number(weight.toFixed(3)),
+      calculatedVolumeLiters: Number(volume.toFixed(3)),
+      calculatedDensity: Number(density.toFixed(4)),
+      predictedScore: prediction.score,
+      predictedCategory: prediction.predictedCategory
+    };
 
-            calculatedDensity:
-                Number(
-                    density.toFixed(4)
-                ),
+    const sentSuccessfully = await postDataToGoogle(dataForTable);
+    const savingStatus = document.getElementById("saving-status");
 
-            predictedScore:
-                prediction.score,
-
-            predictedCategory:
-                prediction.predictedCategory
-        };
-
-        const sentSuccessfully =
-            await postDataToGoogle(
-                dataForTable
-            );
-
-        const savingStatus =
-            document.getElementById(
-                "saving-status"
-            );
-
-        if (savingStatus) {
-            savingStatus.innerHTML =
-                sentSuccessfully
-                    ? "✅ Результат отправлен в базу наблюдений"
-                    : "⚠️ Не удалось отправить результат. Проверьте интернет.";
-        }
-
-        analyzeButton.disabled = false;
-
-        analyzeButton.textContent =
-            "Проверить ещё раз";
+    if (savingStatus) {
+      savingStatus.innerHTML = sentSuccessfully
+        ? "✅ Результат отправлен в базу наблюдений"
+        : "⚠️ Не удалось отправить результат. Проверьте интернет.";
     }
 
+    analyzeButton.disabled = false;
+    analyzeButton.textContent = "Проверить ещё раз";
+  }
 
-    function getPendingTests() {
-        try {
-            const savedValue =
-                localStorage.getItem(
-                    PENDING_TESTS_STORAGE_KEY
-                );
+  function getPendingTests() {
+    try {
+      const savedValue = localStorage.getItem(PENDING_TESTS_STORAGE_KEY);
+      if (!savedValue) return [];
+      const parsedValue = JSON.parse(savedValue);
+      return Array.isArray(parsedValue) ? parsedValue : [];
+    } catch (error) {
+      console.error("Не удалось прочитать проверки:", error);
+      return [];
+    }
+  }
 
-            if (!savedValue) {
-                return [];
-            }
+  function savePendingTests(tests) {
+    localStorage.setItem(PENDING_TESTS_STORAGE_KEY, JSON.stringify(tests));
+  }
 
-            const parsedValue =
-                JSON.parse(savedValue);
+  function addPendingTest(test) {
+    const tests = getPendingTests();
+    const alreadyExists = tests.some(item => item.testId === test.testId);
 
-            return Array.isArray(parsedValue)
-                ? parsedValue
-                : [];
-        } catch (error) {
-            console.error(
-                "Не удалось прочитать проверки:",
-                error
-            );
+    if (!alreadyExists) {
+      tests.push(test);
+      savePendingTests(tests);
+    }
+  }
 
-            return [];
-        }
+  function removePendingTest(testId) {
+    const updatedTests = getPendingTests().filter(item => item.testId !== testId);
+    savePendingTests(updatedTests);
+  }
+
+  function getPendingTestById(testId) {
+    return getPendingTests().find(item => item.testId === testId) || null;
+  }
+
+  function formatTestSummary(test) {
+    if (!test) return "";
+
+    const date = new Date(test.createdAt);
+    const formattedDate = Number.isNaN(date.getTime())
+      ? ""
+      : date.toLocaleString("ru-RU", {
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+
+    return `
+      <b>${test.watermelonType}</b><br>
+      Вес: <b>${test.weightKg} кг</b><br>
+      Прогноз: <b>${test.predictedScore}/10</b>
+      ${formattedDate ? `<br>Проверка: ${formattedDate}` : ""}
+    `;
+  }
+
+  function showPendingReminder() {
+    const tests = getPendingTests();
+
+    if (tests.length === 0) {
+      document.getElementById("reminder-card").style.display = "none";
+      return;
     }
 
+    const firstTest = tests[0];
+    const reminderDescription = document.getElementById("reminder-description");
 
-    function savePendingTests(tests) {
-        localStorage.setItem(
-            PENDING_TESTS_STORAGE_KEY,
-            JSON.stringify(tests)
-        );
+    reminderDescription.textContent =
+      tests.length === 1
+        ? "У вас осталась одна незавершённая проверка. Реальная оценка займёт около 20 секунд и поможет сделать алгоритм точнее."
+        : "У вас осталось незавершённых проверок: " +
+          tests.length +
+          ". Начнём с первой.";
+
+    document.getElementById("pending-summary").innerHTML =
+      formatTestSummary(firstTest);
+
+    document.getElementById("reminder-card").style.display = "block";
+  }
+
+  function hideReminderForNow() {
+    document.getElementById("reminder-card").style.display = "none";
+  }
+
+  function openNextPendingFeedback() {
+    const tests = getPendingTests();
+
+    if (tests.length === 0) {
+      hideReminderForNow();
+      return;
     }
 
+    openFeedbackFormForTest(tests[0].testId);
+  }
 
-    function addPendingTest(test) {
-        const tests =
-            getPendingTests();
-
-        const alreadyExists =
-            tests.some(
-                item =>
-                    item.testId === test.testId
-            );
-
-        if (!alreadyExists) {
-            tests.push(test);
-            savePendingTests(tests);
-        }
+  function openLatestCreatedFeedback() {
+    if (latestCreatedTestId) {
+      openFeedbackFormForTest(latestCreatedTestId);
+      return;
     }
 
+    const tests = getPendingTests();
 
-    function removePendingTest(testId) {
-        const updatedTests =
-            getPendingTests().filter(
-                item =>
-                    item.testId !== testId
-            );
-
-        savePendingTests(updatedTests);
+    if (tests.length === 0) {
+      alert("Незавершённая проверка не найдена.");
+      return;
     }
 
+    openFeedbackFormForTest(tests[tests.length - 1].testId);
+  }
 
-    function getPendingTestById(testId) {
-        return (
-            getPendingTests().find(
-                item =>
-                    item.testId === testId
-            ) || null
-        );
+  function openFeedbackFormForTest(testId) {
+    const test = getPendingTestById(testId);
+
+    if (!test) {
+      alert("Эта проверка уже завершена или не найдена.");
+      return;
     }
 
+    activeFeedbackTestId = testId;
+    selectedActualScore = null;
 
-    function formatTestSummary(test) {
-        if (!test) {
-            return "";
-        }
+    document.querySelectorAll(".score-button").forEach(button => {
+      button.classList.remove("selected");
+    });
 
-        const date =
-            new Date(test.createdAt);
+    document.getElementById("city").value =
+      localStorage.getItem(SAVED_CITY_STORAGE_KEY) || "";
 
-        const formattedDate =
-            Number.isNaN(date.getTime())
-                ? ""
-                : date.toLocaleString(
-                    "ru-RU",
-                    {
-                        day: "2-digit",
-                        month: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    }
-                );
+    document.getElementById("feedback-test-summary").innerHTML =
+      formatTestSummary(test);
 
-        return `
-            <b>${test.watermelonType}</b>
+    document.getElementById("feedback-status").style.display = "none";
+    document.getElementById("feedback-content").style.display = "block";
+    document.getElementById("thank-you-card").style.display = "none";
+    document.getElementById("feedback-overlay").style.display = "block";
+    document.body.style.overflow = "hidden";
+  }
 
-            <br>
+  function closeFeedbackForm() {
+    document.getElementById("feedback-overlay").style.display = "none";
+    document.body.style.overflow = "";
+    activeFeedbackTestId = null;
+  }
 
-            Вес:
-            <b>${test.weightKg} кг</b>
+  function selectScore(score) {
+    selectedActualScore = score;
 
-            <br>
+    document.querySelectorAll(".score-button").forEach(button => {
+      const buttonScore = Number(button.dataset.score);
+      button.classList.toggle("selected", buttonScore === score);
+    });
+  }
 
-            Прогноз:
-            <b>${test.predictedScore}/10</b>
-
-            ${
-                formattedDate
-                    ? (
-                        "<br>Проверка: " +
-                        formattedDate
-                    )
-                    : ""
-            }
-        `;
+  async function submitFeedback() {
+    if (!activeFeedbackTestId) {
+      alert("Не удалось определить проверку.");
+      return;
     }
 
-
-    function showPendingReminder() {
-        const tests =
-            getPendingTests();
-
-        if (tests.length === 0) {
-            document
-                .getElementById(
-                    "reminder-card"
-                )
-                .style.display = "none";
-
-            return;
-        }
-
-        const firstTest =
-            tests[0];
-
-        const reminderCard =
-            document.getElementById(
-                "reminder-card"
-            );
-
-        const reminderDescription =
-            document.getElementById(
-                "reminder-description"
-            );
-
-        reminderDescription.textContent =
-            tests.length === 1
-                ? (
-                    "У вас осталась одна незавершённая проверка. " +
-                    "Реальная оценка займёт около 20 секунд " +
-                    "и поможет сделать алгоритм точнее."
-                )
-                : (
-                    "У вас осталось незавершённых проверок: " +
-                    tests.length +
-                    ". Начнём с первой."
-                );
-
-        document
-            .getElementById(
-                "pending-summary"
-            )
-            .innerHTML =
-                formatTestSummary(firstTest);
-
-        reminderCard.style.display =
-            "block";
+    if (
+      !Number.isFinite(selectedActualScore) ||
+      selectedActualScore < 1 ||
+      selectedActualScore > 10
+    ) {
+      alert("Выберите оценку от 1 до 10.");
+      return;
     }
 
+    const city = document
+      .getElementById("city")
+      .value
+      .trim()
+      .slice(0, 100);
 
-    function hideReminderForNow() {
-        document
-            .getElementById(
-                "reminder-card"
-            )
-            .style.display = "none";
+    if (city) {
+      localStorage.setItem(SAVED_CITY_STORAGE_KEY, city);
     }
 
+    const sendButton = document.getElementById("send-feedback-button");
+    const feedbackStatus = document.getElementById("feedback-status");
 
-    function openNextPendingFeedback() {
-        const tests =
-            getPendingTests();
+    sendButton.disabled = true;
+    sendButton.textContent = "Отправляем…";
+    feedbackStatus.style.display = "block";
+    feedbackStatus.textContent = "⏳ Сохраняем наблюдение…";
 
-        if (tests.length === 0) {
-            hideReminderForNow();
-            return;
-        }
+    const sentSuccessfully = await postDataToGoogle({
+      action: "save_feedback",
+      testId: activeFeedbackTestId,
+      actualScore: selectedActualScore,
+      city
+    });
 
-        openFeedbackFormForTest(
-            tests[0].testId
-        );
+    sendButton.disabled = false;
+    sendButton.textContent = "Отправить наблюдение";
+
+    if (!sentSuccessfully) {
+      feedbackStatus.textContent =
+        "⚠️ Не удалось отправить наблюдение. Проверьте интернет.";
+      return;
     }
 
+    removePendingTest(activeFeedbackTestId);
 
-    function openLatestCreatedFeedback() {
-        if (latestCreatedTestId) {
-            openFeedbackFormForTest(
-                latestCreatedTestId
-            );
-
-            return;
-        }
-
-        const tests =
-            getPendingTests();
-
-        if (tests.length === 0) {
-            alert(
-                "Незавершённая проверка не найдена."
-            );
-
-            return;
-        }
-
-        openFeedbackFormForTest(
-            tests[tests.length - 1].testId
-        );
+    if (latestCreatedTestId === activeFeedbackTestId) {
+      latestCreatedTestId = null;
+      document.getElementById("feedback-invitation").style.display = "none";
     }
 
+    document.getElementById("reminder-card").style.display = "none";
+    document.getElementById("feedback-content").style.display = "none";
+    document.getElementById("thank-you-card").style.display = "block";
+  }
 
-    function openFeedbackFormForTest(testId) {
-        const test =
-            getPendingTestById(testId);
+  function finishFeedback() {
+    document.getElementById("feedback-overlay").style.display = "none";
+    document.body.style.overflow = "";
+    activeFeedbackTestId = null;
+    selectedActualScore = null;
+    showPendingReminder();
+  }
 
-        if (!test) {
-            alert(
-                "Эта проверка уже завершена или не найдена."
-            );
-
-            return;
-        }
-
-        activeFeedbackTestId =
-            testId;
-
-        selectedActualScore =
-            null;
-
-        document
-            .querySelectorAll(
-                ".score-button"
-            )
-            .forEach(
-                button =>
-                    button.classList.remove(
-                        "selected"
-                    )
-            );
-
-        const savedCity =
-            localStorage.getItem(
-                SAVED_CITY_STORAGE_KEY
-            ) || "";
-
-        document
-            .getElementById("city")
-            .value =
-                savedCity;
-
-        document
-            .getElementById(
-                "feedback-test-summary"
-            )
-            .innerHTML =
-                formatTestSummary(test);
-
-        document
-            .getElementById(
-                "feedback-status"
-            )
-            .style.display = "none";
-
-        document
-            .getElementById(
-                "feedback-content"
-            )
-            .style.display = "block";
-
-        document
-            .getElementById(
-                "thank-you-card"
-            )
-            .style.display = "none";
-
-        document
-            .getElementById(
-                "feedback-overlay"
-            )
-            .style.display = "block";
-
-        document.body.style.overflow =
-            "hidden";
+  function initializeMaxBridge() {
+    try {
+      if (window.WebApp) {
+        console.log("MAX Bridge подключён", {
+          platform: window.WebApp.platform,
+          version: window.WebApp.version,
+          deviceName: window.WebApp.deviceName
+        });
+      }
+    } catch (error) {
+      console.warn("MAX Bridge недоступен:", error);
     }
+  }
 
+  function initializeApplication() {
+    initializeMaxBridge();
+    toggleMethod();
+    showPendingReminder();
+  }
 
-    function closeFeedbackForm() {
-        document
-            .getElementById(
-                "feedback-overlay"
-            )
-            .style.display = "none";
-
-        document.body.style.overflow =
-            "";
-
-        activeFeedbackTestId =
-            null;
-    }
-
-
-    function selectScore(score) {
-        selectedActualScore =
-            score;
-
-        document
-            .querySelectorAll(
-                ".score-button"
-            )
-            .forEach(
-                button => {
-                    const buttonScore =
-                        Number(
-                            button.dataset.score
-                        );
-
-                    button.classList.toggle(
-                        "selected",
-                        buttonScore === score
-                    );
-                }
-            );
-    }
-
-
-    async function submitFeedback() {
-        if (!activeFeedbackTestId) {
-            alert(
-                "Не удалось определить проверку."
-            );
-
-            return;
-        }
-
-        if (
-            !Number.isFinite(
-                selectedActualScore
-            ) ||
-            selectedActualScore < 1 ||
-            selectedActualScore > 10
-        ) {
-            alert(
-                "Выберите оценку от 1 до 10."
-            );
-
-            return;
-        }
-
-        const city =
-            document
-                .getElementById("city")
-                .value
-                .trim()
-                .slice(0, 100);
-
-        if (city) {
-            localStorage.setItem(
-                SAVED_CITY_STORAGE_KEY,
-                city
-            );
-        }
-
-        const sendButton =
-            document.getElementById(
-                "send-feedback-button"
-            );
-
-        const feedbackStatus =
-            document.getElementById(
-                "feedback-status"
-            );
-
-        sendButton.disabled = true;
-
-        sendButton.textContent =
-            "Отправляем…";
-
-        feedbackStatus.style.display =
-            "block";
-
-        feedbackStatus.textContent =
-            "⏳ Сохраняем наблюдение…";
-
-        const sentSuccessfully =
-            await postDataToGoogle({
-                action:
-                    "save_feedback",
-
-                testId:
-                    activeFeedbackTestId,
-
-                actualScore:
-                    selectedActualScore,
-
-                city:
-                    city
-            });
-
-        sendButton.disabled = false;
-
-        sendButton.textContent =
-            "Отправить наблюдение";
-
-        if (!sentSuccessfully) {
-            feedbackStatus.textContent =
-                "⚠️ Не удалось отправить наблюдение. Проверьте интернет.";
-
-            return;
-        }
-
-        removePendingTest(
-            activeFeedbackTestId
-        );
-
-        if (
-            latestCreatedTestId ===
-            activeFeedbackTestId
-        ) {
-            latestCreatedTestId =
-                null;
-
-            document
-                .getElementById(
-                    "feedback-invitation"
-                )
-                .style.display = "none";
-        }
-
-        document
-            .getElementById(
-                "reminder-card"
-            )
-            .style.display = "none";
-
-        document
-            .getElementById(
-                "feedback-content"
-            )
-            .style.display = "none";
-
-        document
-            .getElementById(
-                "thank-you-card"
-            )
-            .style.display = "block";
-    }
-
-
-    function finishFeedback() {
-        document
-            .getElementById(
-                "feedback-overlay"
-            )
-            .style.display = "none";
-
-        document.body.style.overflow =
-            "";
-
-        activeFeedbackTestId =
-            null;
-
-        selectedActualScore =
-            null;
-
-        showPendingReminder();
-    }
-
-
-    function initializeApplication() {
-        toggleMethod();
-        showPendingReminder();
-    }
-
-
-    initializeApplication();
+  initializeApplication();
 </script>
 
 </body>
